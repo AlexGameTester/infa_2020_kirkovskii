@@ -3,6 +3,30 @@ import pygame.draw as draw
 import math
 import random as rand
 
+def main(draw_scene, colors):
+    pygame.init()
+
+    FPS = 60
+    screen_size = (500, 800)
+    screen = pygame.display.set_mode(screen_size)
+    screen.fill(colors['sky blue'])
+
+    draw_scene(screen, colors)
+    pygame.display.update()
+    clock = pygame.time.Clock()
+
+    while True:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+
+def rand_pos(r, offset):
+    ox, oy = offset
+    angle = rand.random()
+    return (r * math.sin(2*math.pi * angle) + ox, r * math.cos(2 * math.pi * angle) + oy)
+
 
 def draw_background(screen, colors):
     polygon_closing_verticies = [(500, 800), (0, 800)]
@@ -49,7 +73,7 @@ def draw_background(screen, colors):
     draw_surface()
 
 
-def draw_animal(screen, colors, x, y, size):
+def draw_animal(screen, colors, x, y, size, reverse=False):
     def draw_neck(surface, x, y):
         def draw_head(x, y):
             def draw_horn(x, y):
@@ -106,15 +130,14 @@ def draw_animal(screen, colors, x, y, size):
     draw_neck(surface, 345, 240)
     draw.ellipse(surface, colors['white'], body_rect)
 
+    if reverse:
+        surface = pygame.transform.flip(surface, True, False)
+
     surface = pygame.transform.scale(surface, (int(600 * size), int(800 * size)))
     surface.set_colorkey(colors['flower key color'])
     screen.blit(surface, (x, y))
 
 def draw_bush(screen, colors, x, y, scale):
-    def rand_pos(r, offset):
-        ox, oy = offset
-        angle = rand.random()
-        return (r * math.sin(2*math.pi * angle) + ox, r * math.cos(2 * math.pi * angle) + oy)
 
     def get_flower(scale, rotation_angle=0):
         surface = pygame.Surface((400, 400))
@@ -175,8 +198,6 @@ def draw_scene(screen, colors):
     draw_bush(screen, colors, 250, 450, 0.45)
 
 
-pygame.init()
-
 colors = {
     'yellow': 0xFFFF00,
     'black': 0x0,
@@ -189,17 +210,6 @@ colors = {
     'eye purple': 0xe580ff,
     'bush green': 0x71c837
 }
-FPS = 60
-screen_size = (500, 800)
-screen = pygame.display.set_mode(screen_size)
-screen.fill(colors['sky blue'])
 
-draw_scene(screen, colors)
-pygame.display.update()
-clock = pygame.time.Clock()
-
-while True:
-    clock.tick(FPS)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
+if __name__ == '__main__':
+    main(draw_scene, colors)
