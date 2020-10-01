@@ -49,32 +49,56 @@ def draw_background(screen, colors):
     draw_surface()
 
 
+def draw_animal(screen, colors, x, y, size):
+    def draw_leg(x, y):
+        top_rect = (x + 0, y + 0, 40, 70)
+        draw.ellipse(surface, colors['white'], top_rect)
+
+        bot_rect = (x - 2, y + 66, 44, 80)
+        draw.ellipse(surface, colors['white'],bot_rect)
+
+        foot_rect = (x + 6, y + 130, 58, 30)
+        draw.ellipse(surface, colors['white'], foot_rect)
+
+    surface = pygame.Surface((600, 800))
+    surface.fill(colors['flower key color'])
+
+    draw_leg(60, 450)
+    body_rect = (50, 300, 350, 200)
+    draw.ellipse(surface, colors['white'], body_rect)
+
+    surface = pygame.transform.scale(surface, (int(600 * size), int(800 * size)))
+    surface.set_colorkey(colors['flower key color'])
+    screen.blit(surface, (x, y))
+
 def draw_bush(screen, colors, x, y, size):
     def get_flower(scale, rotation_angle=0):
         flower = pygame.Surface((400, 400))
         flower.fill(colors['flower key color'])
         # flower.set_colorkey(colors['flower key color'])
-        x0 = 100
-        y0 = 100
+        x0 = 200
+        y0 = 200
 
-        centre_x = 20
-        centre_y = 8
-        draw.ellipse(flower, colors['yellow'], ((x0 - centre_x/2, y0 - centre_y/2), (centre_x, centre_y)))
+        centre_x = 60
+        centre_y = 24
+        # draw.ellipse(flower, colors['yellow'], ((x0 - centre_x/2, y0 - centre_y/2), (centre_x, centre_y)))
 
         number_of_petals = 7
-        dist = 4
-        petal_x = 22
+        dist = 20
+        petal_x = 58
         petal_dx = 2
-        petal_y = 10
+        petal_y = 22
         petal_dy = 2
         for angle in [2*math.pi/number_of_petals * n for n in range(number_of_petals)]:
             size_x = petal_x + rand.randint(-petal_dx, petal_dx)
             size_y = petal_y + rand.randint(-petal_dy, petal_dy)
-            rect = (int(x0 + (dist + size_x/2) * math.cos(angle)), int(y0 + (dist + size_y/2) * math.sin(angle)), centre_x, centre_y)
+            rect = (int(x0 + dist * math.cos(angle) - size_x/2), int(y0 + dist * math.sin(angle) - size_y/2), size_x, size_y)
             draw.ellipse(flower, colors['white'], rect)
             draw.ellipse(flower, colors['black'], rect, 1)
             angle += 2*math.pi / number_of_petals
         
+        draw.ellipse(flower, colors['yellow'], ((x0 - centre_x/2, y0 - centre_y/2), (centre_x, centre_y)))
+
         flower = pygame.transform.rotozoom(flower, rotation_angle, scale)
         flower.set_colorkey(colors['flower key color'])
         return flower
@@ -83,13 +107,9 @@ def draw_bush(screen, colors, x, y, size):
     screen.blit(test_flower, (200, 200))
 
 
-
-
-
-
-
 def draw_scene(screen, colors):
     draw_background(screen, colors)
+    draw_animal(screen, colors, 0, 0, 1)
     draw_bush(screen, colors, 0, 0, 0)
 
 
