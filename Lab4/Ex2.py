@@ -20,18 +20,25 @@ COLORS = {
 def main():
     """
     Initializes pygame, draws background, animal and bush.
+
     :return: None
     """
     pygame.init()
     FPS = 60
 
-    screen_size = (800, 800)
+    screen_size = (794, 1123)
     screen = pygame.display.set_mode(screen_size)
     screen.fill(COLORS['sky blue'])
 
     draw_mountains(screen, screen_size)
     draw_land(screen, screen_size)
-    draw_animal(screen, 0, 0, 0.8)
+    animal_rect = (
+        int(0.12 * screen_size[0]),
+        int(0.42 * screen_size[1]),
+        int(0.27 * screen_size[0]),
+        int(0.3 * screen_size[1]),
+    )
+    draw_animal(screen, *animal_rect)
     draw_bush(screen, 250, 450, 0.45)
 
     pygame.display.update()
@@ -48,12 +55,13 @@ def main():
 def rand_pos(r, offset):
     ox, oy = offset
     angle = 2 * math.pi * rand.random()
-    return r * math.sin(angle) + ox, r * math.cos(angle) + oy
+    return int(r * math.sin(angle) + ox), int(r * math.cos(angle) + oy)
 
 
 def draw_mountains(screen, size):
     """
     Draws mountain chain on screen.
+
     :param screen: pygame Surface object
     :param size: (width, height), tuple with screen's width and height
     :return: None
@@ -79,6 +87,7 @@ def draw_mountains(screen, size):
 def draw_land(screen, size):
     """
     Draws land on screen.
+
     :param screen: pygame Surface object
     :param size: (width, height), tuple with screen's width and height
     :return:
@@ -105,70 +114,89 @@ def draw_land(screen, size):
     draw.aalines(screen, COLORS['black'], False, surface_vertices[:-2])
 
 
-def draw_animal(screen, x, y, size, reverse=False):
-    def draw_neck(surface, x, y):
-        def draw_head(x, y):
-            def draw_horn(x, y):
-                horn_verticies = [(x, y), (x - 22, y - 30), (x + 2, y - 6)]
-                draw.polygon(surface, COLORS['white'], horn_verticies)
+def draw_animal(screen, x, y, width, height, reverse=False):
+    """
+    Draws animal on screen at x, y coordinates.
 
-            def draw_eye(x, y):
-                eye_height = 30
-                eye_width = 34
-                draw.ellipse(surface, COLORS['eye purple'],
-                             (int(x - eye_width / 2), int(y - eye_height / 2), eye_width, eye_height))
-                pupil_radius = 9
-                draw.circle(surface, COLORS['black'], (x + 3, y), pupil_radius)
-                flare_start = (x - 7, y - 6)
-                flare_end = (x + 1, y - 3)
-                draw.line(surface, COLORS['white'], flare_start, flare_end, 6)
+    :param screen: pygame Surface object
+    :param x: x-coordinate of top left point
+    :param y: y-coordinate of top left point
+    :param width: full width of animal
+    :param height: full height of animal
+    :param reverse: if False, animal looks right
+    :return: None
+    """
+    surf = pygame.Surface((width, height))
+    surf.set_colorkey(COLORS['black'])
 
-            # draw_horn = lambda x, y: draw.polygon(screen, COLORS['white'], )
-            head_rect = (x, y, 62, 40)
-            draw.ellipse(surface, COLORS['white'], head_rect)
-
-            eye_offset_x, eye_offset_y = 28, 18
-            draw_eye(x + eye_offset_x, y + eye_offset_y)
-
-            horn_offset_x, horn_offset_y = 5, 12
-            horn_delta_y, horn_delta_x = 6, -6
-            draw_horn(x + horn_offset_x, y + horn_offset_y)
-            draw_horn(x + horn_offset_x + horn_delta_x, y + horn_offset_y + horn_delta_y)
-
-        neck_height = 190
-        neck_width = 40
-        draw.ellipse(surface, COLORS['white'], (x, y, neck_width, neck_height))
-        # draw_head(x + neck_width // 2, y - neck_height - 8)
-        draw_head(x + 2, y - 8)
-
-    def draw_leg(surface, x, y):
-        top_height = 70
-        top_rect = (x + 0, y + 0, 40, top_height)
-        draw.ellipse(surface, COLORS['white'], top_rect)
-
-        bot_rect = (x - 2, y + top_height - 4, 44, 80)
-        draw.ellipse(surface, COLORS['white'], bot_rect)
-
-        foot_rect = (x + 9, y + 130, 58, 30)
-        draw.ellipse(surface, COLORS['white'], foot_rect)
-
-    surface = pygame.Surface((600, 800))
-    surface.fill(COLORS['flower key color'])
-
-    draw_leg(surface, 65, 435)
-    draw_leg(surface, 105, 450)
-    draw_leg(surface, 300, 450)
-    draw_leg(surface, 335, 430)
-    body_rect = (50, 340, 350, 140)
-    draw_neck(surface, 345, 240)
-    draw.ellipse(surface, COLORS['white'], body_rect)
+    head_rect = (
+        int(0.7 * width),
+        height // 22,
+        int(0.3 * width),
+        int(0.54 * height)
+    )
+    draw_head(surf, *head_rect)
+    legs_xy = (
+        (width//10, height//2),
+        (int(0.25 * width), int(0.58 * height)),
+        (width//2, height//2),
+        (int(0.65 * width), int(0.58 * height)),
+    )
+    for x_, y_, in legs_xy:
+        leg_width = width // 6
+        leg_height = int(0.38 * height)
+        draw_leg(surf, x_, y_, leg_width, leg_height)
+    body_rect = (
+        0,
+        int(0.41 * height),
+        6 * width // 7,
+        int(0.22 * height),
+    )
+    draw.ellipse(surf, COLORS['white'], body_rect)
 
     if reverse:
-        surface = pygame.transform.flip(surface, True, False)
+        surf = pygame.transform.flip(surf, True, False)
 
-    surface = pygame.transform.scale(surface, (int(600 * size), int(800 * size)))
-    surface.set_colorkey(COLORS['flower key color'])
-    screen.blit(surface, (x, y))
+    screen.blit(surf, (x, y))
+
+
+def draw_head(screen, x, y, width, height):
+    """
+    Draws animal's head and neck on `screen`.
+
+    :param screen: pygame Surface object
+    :param x: x-coordinate of top left point of image head
+    :param y: y-coordinate of top left point of image head
+    :param width: width of head
+    :param height: neck and head total height
+    :return: none
+    """
+    # TODO make eye_horn function, draw head, neck
+    pass
+
+
+def draw_leg(screen, x, y, width, height):
+    """
+    Draws a leg consisting of 2 vertical and 1 horizontal ellipses on pygame Surface.
+
+    :param screen: pygame Surface object
+    :param x: x-coordinate of top left point
+    :param y: y-coordinate of top left point
+    :param width: width of foot
+    :param height: full width of 3 pieces
+    :return: None
+    """
+    height0 = int(0.4 * height)
+    width0 = int(0.7 * width)
+    draw.ellipse(screen, COLORS['white'], (x, y, width0, height0))
+    draw.ellipse(screen, COLORS['white'], (x, y + int(0.95*height0), width0, height0))
+    draw.ellipse(screen, COLORS['white'],
+                 (
+                    x + 2,
+                    y + int(1.9 * height0),
+                    int(0.9 * width),
+                    int(0.15 * height),
+                 ))
 
 
 def draw_bush(screen, x, y, scale):
@@ -194,8 +222,9 @@ def draw_bush(screen, x, y, scale):
             size_x = petal_x + rand.randint(-petal_dx, petal_dx)
             size_y = petal_y + rand.randint(-petal_dy, petal_dy)
             rect = (
-            int(x0 + dist_x * math.cos(angle) - size_x / 2), int(y0 + dist_y * math.sin(angle) - size_y / 2), size_x,
-            size_y)
+                int(x0 + dist_x * math.cos(angle) - size_x / 2), int(y0 + dist_y * math.sin(angle) - size_y / 2),
+                size_x,
+                size_y)
             draw.ellipse(surface, COLORS['white'], rect)
             draw.ellipse(surface, COLORS['black'], rect, 1)
             angle += 2 * math.pi / number_of_petals
