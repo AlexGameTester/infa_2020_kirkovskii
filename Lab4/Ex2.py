@@ -35,8 +35,8 @@ def main():
     animal_rect = (
         int(0.12 * screen_size[0]),
         int(0.42 * screen_size[1]),
-        int(0.27 * screen_size[0]),
-        int(0.3 * screen_size[1]),
+        int(0.37 * screen_size[0]),
+        int(0.4 * screen_size[1]),
     )
     draw_animal(screen, *animal_rect)
     draw_bush(screen, 250, 450, 0.45)
@@ -127,13 +127,14 @@ def draw_animal(screen, x, y, width, height, reverse=False):
     :return: None
     """
     surf = pygame.Surface((width, height))
-    surf.set_colorkey(COLORS['black'])
+    surf.set_colorkey(COLORS['flower key color'])
+    surf.fill(COLORS['flower key color'])
 
     head_rect = (
         int(0.7 * width),
         height // 22,
         int(0.3 * width),
-        int(0.54 * height)
+        int(0.44 * height)
     )
     draw_head(surf, *head_rect)
     legs_xy = (
@@ -169,10 +170,74 @@ def draw_head(screen, x, y, width, height):
     :param y: y-coordinate of top left point of image head
     :param width: width of head
     :param height: neck and head total height
-    :return: none
+    :return: None
     """
-    # TODO make eye_horn function, draw head, neck
-    pass
+    def draw_eye(surface, x, y, width, height):
+        """
+        Draws an eye of animal with pupil on surface.
+
+        :param surface: pygame Surface Object
+        :param x: x-coord of center of eye
+        :param y: y-coord of center of eye
+        :param width: width of eye
+        :param height: height of eye
+        :return: None
+        """
+        draw.ellipse(surface, COLORS['eye purple'], (x, y, width, height))
+        pupil_rect = (
+            x + int(0.4 * width),
+            y + height//6,
+            int(0.5 * width),
+            int(0.5 * height),
+        )
+        draw.ellipse(surface, COLORS['black'], pupil_rect)
+        glare_xy = (
+            (x + int(0.1 * width), y + int(0.2 * height)),
+            (x + int(0.3 * width), y + int(0.1 * height)),
+            (x + int(0.6 * width), y + int(0.4 * height)),
+            (x + int(0.4 * width), y + int(0.3 * height)),
+        )
+        draw.polygon(surface, COLORS['white'], glare_xy)
+
+    def draw_horn(surface, x, y, width, height):
+        """
+        Draws a horn on the head of animal.
+
+        :param surface: pygame Surface object
+        :param x: x-coordinate of bottom right point of the horn
+        :param y: y-coordinate of bottom right point of the horn
+        :param width: width of horn
+        :param height: height of horn
+        :return: None
+        """
+        poly_xy = (
+            (x, y),
+            (x - width//3, y + height // 5),
+            (x - width, y - 4 * height // 5),
+        )
+        draw.polygon(screen, COLORS['white'], poly_xy)
+
+    draw.ellipse(screen, COLORS['white'], (x, y, width, height//4))
+    draw.ellipse(screen, COLORS['white'],
+                 (
+                     x - width//10,
+                     y + height//6,
+                     int(0.7 * width),
+                     int(0.92 * height),
+                 ))
+    eye_xy = (
+        x + int(0.25 * width),
+        y + height // 30,
+        int(0.38 * width),
+        int(0.16 * height),
+    )
+    draw_eye(screen, *eye_xy)
+    horn_xy = (
+        (x + width//10, y + height//15, width // 3, int(0.2 * height)),
+        (x + width//4, y + height//40, width // 3, int(0.2 * height)),
+    )
+    for param in horn_xy:
+        draw_horn(screen, *param)
 
 
 def draw_leg(screen, x, y, width, height):
@@ -200,6 +265,7 @@ def draw_leg(screen, x, y, width, height):
 
 
 def draw_bush(screen, x, y, scale):
+    # TODO refactor draw_bush function
     def get_flower(scale, rotation_angle=0):
         surface = pygame.Surface((400, 400))
         surface.fill(COLORS['flower key color'])
