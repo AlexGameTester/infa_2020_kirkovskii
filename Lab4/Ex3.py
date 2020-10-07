@@ -1,18 +1,58 @@
-from Ex2 import colors, main, draw_background, draw_animal, draw_bush
-import random as rand
+import pygame
+from Ex2 import COLORS
+from Ex2 import draw_mountains, draw_land
+from Ex2 import draw_animal
+from Ex2 import draw_bush
 
-def draw_advanced_scene(screen, colors):
-    draw_background(screen, colors)
 
-    draw_bush(screen, colors, 40, 340, 0.3)
-    draw_bush(screen, colors, 180, 410, 0.25)
-    draw_bush(screen, colors, 300, 450, 0.4)
-    draw_bush(screen, colors, 220, 430, 0.15)
+def main():
+    """
+    Initializes pygame, draws background, animal and bush.
 
-    draw_animal(screen, colors, 0, 300, 0.7)
-    draw_animal(screen, colors, 0, 120, 0.4)
-    draw_animal(screen, colors, 200, 400, 0.5, True)
+    :return: None
+    """
+    pygame.init()
+    FPS = 60
+
+    screen_size = (794, 1123)
+    screen = pygame.display.set_mode(screen_size)
+    screen.fill(COLORS['sky blue'])
+
+    draw_mountains(screen, screen_size)
+    draw_land(screen, screen_size)
+
+    bush_rect = (
+        (0.55, 0.8, 0.15),
+        (0.9, 0.62, 0.12),
+    )
+    for x, y, scale in bush_rect:
+        x_ = int(screen_size[0] * x)
+        y_ = int(screen_size[1] * y)
+        radius = int(screen_size[0] * scale)
+        draw_bush(screen, x_, y_, radius)
+
+    animal_rect = (
+        (0.1, 0.6, 0.3, False),
+        (0.15, 0.3, 0.2, False),
+        (0.7, 0.6, 0.25, True),
+    )
+    for x, y, scale, rev in animal_rect:
+        x_ = int(screen_size[0] * x)
+        y_ = int(screen_size[1] * y)
+        w = int(screen_size[0] * scale)
+        h = int(screen_size[1] * scale)
+        draw_animal(screen, x_, y_, w, h, rev)
+
+    pygame.display.update()
+    clock = pygame.time.Clock()
+    finished = True
+    while finished:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                finished = False
+    pygame.quit()
 
 
 if __name__ == '__main__':
-    main(draw_advanced_scene, colors)
+    main()
