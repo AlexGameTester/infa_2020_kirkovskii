@@ -39,7 +39,12 @@ def main():
         int(0.4 * screen_size[1]),
     )
     draw_animal(screen, *animal_rect)
-    draw_bush(screen, 250, 450, 0.45)
+    bush_rect = (
+        int(0.75 * screen_size[0]),
+        int(0.74 * screen_size[1]),
+        screen_size[0] // 5
+    )
+    draw_bush(screen, *bush_rect)
 
     pygame.display.update()
     clock = pygame.time.Clock()
@@ -264,61 +269,62 @@ def draw_leg(screen, x, y, width, height):
                  ))
 
 
-def draw_bush(screen, x, y, scale):
-    # TODO refactor draw_bush function
-    def get_flower(scale, rotation_angle=0):
-        surface = pygame.Surface((400, 400))
-        surface.fill(COLORS['flower key color'])
-        # flower.set_colorkey(COLORS['flower key color'])
-        x0 = 200
-        y0 = 200
+def draw_bush(screen, x, y, radius):
+    """
+    Draws a bush on `screen` and calculates parameters of flowers.
 
-        centre_x = 60
-        centre_y = 24
-        draw.ellipse(surface, COLORS['yellow'], ((x0 - centre_x // 2, y0 - centre_y // 2), (centre_x, centre_y)))
-
-        number_of_petals = 7
-        dist_x = 36
-        dist_y = 22
-        petal_x = 48
-        petal_dx = 2
-        petal_y = 26
-        petal_dy = 2
-        for angle in [2 * math.pi / number_of_petals * n for n in range(number_of_petals)]:
-            size_x = petal_x + rand.randint(-petal_dx, petal_dx)
-            size_y = petal_y + rand.randint(-petal_dy, petal_dy)
-            rect = (
-                int(x0 + dist_x * math.cos(angle) - size_x / 2), int(y0 + dist_y * math.sin(angle) - size_y / 2),
-                size_x,
-                size_y)
-            draw.ellipse(surface, COLORS['white'], rect)
-            draw.ellipse(surface, COLORS['black'], rect, 1)
-            angle += 2 * math.pi / number_of_petals
-
-        # draw.ellipse(flower, COLORS['yellow'], ((x0 - centre_x/2, y0 - centre_y/2), (centre_x, centre_y)))
-
-        surface = pygame.transform.scale(surface, (int(400 * scale), int(400 * scale)))
-        surface.set_colorkey(COLORS['flower key color'])
-        return surface
-
+    :param screen: pygame Surface object
+    :param x: x-coordinate of bush's center.
+    :param y: y-coordinate of bush's center.
+    :param radius: radius of the bush
+    :return: None
+    """
     number_of_flowers = rand.randint(3, 6)
 
-    surface = pygame.Surface((600, 600))
+    draw.circle(screen, COLORS['bush green'], (x, y), radius)
+    flower_width = int(0.55 * radius)
+    flower_height = int(0.27 * radius)
+    for i in range(number_of_flowers):
+        flower_x = x + rand.randint(-radius, radius) * 3 // 8
+        flower_y = y + rand.randint(-radius, radius) * 3 // 8
+        draw_flower(screen, flower_x, flower_y, flower_width, flower_height)
+
+
+def draw_flower(screen, x, y, w, h):
+    """
+    Draws a flower on `screen` object.
+
+    :param screen: pygame Surface object
+    :param x: flower's center x-coordinate
+    :param y: flower's center y-coordinate
+    :param w: width of the flower
+    :param h: height of the flower
+    :param angle: angle, the flower is rotated at
+    :return: None
+    """
+    surface = pygame.Surface((w, h))
     surface.fill(COLORS['flower key color'])
-
-    bush_radius = 270
-    draw.circle(surface, COLORS['bush green'], (300, 300), bush_radius)
-    flower_area_radius = bush_radius - 200
-    min_size = 0.4
-
-    offset = (200, 200)  # half of flower surface size
-    surface.blits(
-        [(get_flower(min_size + (1 - min_size) * rand.random()), rand_pos(flower_area_radius, offset)) for i in
-         range(number_of_flowers)])
-
-    surface = pygame.transform.scale(surface, (int(600 * scale), int(600 * scale)))
     surface.set_colorkey(COLORS['flower key color'])
-    screen.blit(surface, (x, y))
+
+    petal_width = 4 * w // 10
+    petal_height = 4 * h // 10
+    petal_xy = (
+        (x, y - h // 4),
+        (x + 3 * w // 20, y - 3 * h // 20),
+        (x - 3 * w // 20, y - 3 * h // 20),
+        (x - w // 4, y),
+        (x + w // 4, y),
+        (x, y),
+        (x + 3 * w // 20, y + h // 5),
+        (x - 3 * w // 20, y + h // 5),
+    )
+    for i, j in petal_xy:
+        if i == x and j == y:
+            draw.ellipse(screen, COLORS['yellow'], (i, j, petal_width, petal_height))
+            continue
+        draw.ellipse(screen, COLORS['white'], (i, j, petal_width, petal_height))
+        draw.ellipse(screen, COLORS['black'], (i, j, petal_width, petal_height), 1)
+
 
 
 if __name__ == '__main__':
