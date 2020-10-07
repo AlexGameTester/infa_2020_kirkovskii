@@ -49,7 +49,7 @@ def main():
 def rand_pos(r, offset):
     ox, oy = offset
     angle = 2 * math.pi * rand.random()
-    return r * math.sin(angle) + ox, r * math.cos(angle) + oy
+    return int(r * math.sin(angle)) + ox, int(r * math.cos(angle) + oy)
 
 
 def draw_mountains(screen, size):
@@ -73,7 +73,8 @@ def draw_mountains(screen, size):
         (1, 1),
         (0, 1),
     ]
-    mountains_vertices = [(int(x * size[0]), int(y * size[1])) for x, y in mountains_coeff]
+    mountains_vertices = [(int(x * size[0]), int(y * size[1]))
+                          for x, y in mountains_coeff]
     draw.polygon(screen, COLORS['mountain grey'], mountains_vertices)
     draw.aalines(screen, COLORS['black'], False, mountains_vertices[:-2])
 
@@ -103,7 +104,8 @@ def draw_land(screen, size):
         (1, 1),
         (0, 1),
     ]
-    surface_vertices = [(int(x * size[0]), int(y * size[1])) for x, y in surface_coeff]
+    surface_vertices = [(int(x * size[0]), int(y * size[1]))
+                        for x, y in surface_coeff]
     draw.polygon(screen, COLORS['grass green'], surface_vertices)
     draw.aalines(screen, COLORS['black'], False, surface_vertices[:-2])
 
@@ -137,7 +139,10 @@ def draw_animal(screen, x, y, size, reverse=False):
     if reverse:
         surface = pygame.transform.flip(surface, True, False)
 
-    surface = pygame.transform.scale(surface, (int(600 * size), int(800 * size)))
+    surface = pygame.transform.scale(
+        surface,
+        (int(600 * size), int(800 * size))
+    )
     surface.set_colorkey(COLORS['flower key color'])
     screen.blit(surface, (x, y))
 
@@ -175,8 +180,8 @@ def draw_head(surface, x, y):
         """
         draw.ellipse(surface, COLORS['eye purple'],
                      (
-                         int(x - width / 2),
-                         int(y - height / 2),
+                         x - width // 2,
+                         y - height // 2,
                          width,
                          height
                      ))
@@ -195,10 +200,14 @@ def draw_head(surface, x, y):
 
     eye_offset_x, eye_offset_y = 28, 18
     draw_eye(x + eye_offset_x, y + eye_offset_y, 34, 30)
+
     horn_offset_x, horn_offset_y = 5, 12
     horn_delta_y, horn_delta_x = 6, -6
     draw_horn(x + horn_offset_x, y + horn_offset_y)
-    draw_horn(x + horn_offset_x + horn_delta_x, y + horn_offset_y + horn_delta_y)
+    draw_horn(
+        x + horn_offset_x + horn_delta_x,
+        y + horn_offset_y + horn_delta_y
+    )
 
 
 def draw_leg(surface, x, y):
@@ -240,12 +249,17 @@ def draw_bush(screen, x, y, scale):
     min_size = 0.4
     offset = (200, 200)  # half of flower surface size
     for i in range(number_of_flowers):
-        flower = get_flower(min_size + (1 - min_size) * rand.random(),
-                            rand.randint(-25, 25))
+        flower = get_flower(
+            min_size + (1 - min_size) * rand.random(),
+            rand.randint(-25, 25)
+        )
         pos = rand_pos(flower_area_radius, offset)
         surface.blit(flower, pos)
 
-    surface = pygame.transform.scale(surface, (int(600 * scale), int(600 * scale)))
+    surface = pygame.transform.scale(
+        surface,
+        (int(600 * scale), int(600 * scale))
+    )
     surface.set_colorkey(COLORS['flower key color'])
     screen.blit(surface, (x, y))
 
@@ -265,13 +279,24 @@ def get_flower(scale, rotation_angle=0):
 
     centre_x = 60
     centre_y = 24
-    draw.ellipse(surface, COLORS['yellow'], ((x0 - centre_x // 2, y0 - centre_y // 2), (centre_x, centre_y)))
+
+    draw.ellipse(
+        surface,
+        COLORS['yellow'],
+        (
+            (x0 - centre_x // 2, y0 - centre_y // 2),
+            (centre_x, centre_y)
+        )
+    )
 
     number_of_petals = 7
     dist_x, dist_y = 36, 22
     petal_x, petal_y = 48, 26
     petal_dx, petal_dy = 2, 2
-    for angle in [2 * math.pi / number_of_petals * n for n in range(number_of_petals)]:
+
+    angles = [2 * math.pi / number_of_petals * n
+              for n in range(number_of_petals)]
+    for angle in angles:
         size_x = petal_x + rand.randint(-petal_dx, petal_dx)
         size_y = petal_y + rand.randint(-petal_dy, petal_dy)
         rect = (
@@ -284,7 +309,10 @@ def get_flower(scale, rotation_angle=0):
         draw.ellipse(surface, COLORS['black'], rect, 1)
         angle += 2 * math.pi / number_of_petals
 
-    surface = pygame.transform.scale(surface, (int(400 * scale), int(400 * scale)))
+    surface = pygame.transform.scale(
+        surface,
+        (int(400 * scale), int(400 * scale))
+    )
     surface.set_colorkey(COLORS['flower key color'])
     surface = pygame.transform.rotate(surface, rotation_angle)
     return surface
