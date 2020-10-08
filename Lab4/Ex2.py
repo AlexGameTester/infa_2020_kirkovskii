@@ -71,6 +71,10 @@ def draw_mountains(screen, size):
     :param size: (width, height), tuple with screen's width and height
     :return: None
     """
+    closing_coeff = [
+        (1, 1),
+        (0, 1),
+    ]
     mountains_coeff = [
         (0, 0.325),
         (0.18, 0.25),
@@ -81,12 +85,11 @@ def draw_mountains(screen, size):
         (0.8, 3 / 16),
         (0.86, 0.225),
         (1, 0.175),
-        (1, 1),
-        (0, 1),
     ]
     mountains_vertices = [(int(x * size[0]), int(y * size[1])) for x, y in mountains_coeff]
-    draw.polygon(screen, COLORS['mountain grey'], mountains_vertices)
-    draw.aalines(screen, COLORS['black'], False, mountains_vertices[:-2])
+    closing_vertices = [(int(x * size[0]), int(y * size[1])) for x, y in closing_coeff]
+    draw.polygon(screen, COLORS['mountain grey'], mountains_vertices + closing_vertices)
+    draw.aalines(screen, COLORS['black'], False, mountains_vertices)
 
 
 def draw_land(screen, size):
@@ -97,6 +100,10 @@ def draw_land(screen, size):
     :param size: (width, height), tuple with screen's width and height
     :return:
     """
+    closing_coeff = [
+        (1, 1),
+        (0, 1),
+    ]
     surface_coeff = [
         (0, 31 / 80),
         (0.04, 307 / 800),
@@ -111,12 +118,11 @@ def draw_land(screen, size):
         (0.52, 0.5275),
         (0.56, 419 / 800),
         (1, 0.525),
-        (1, 1),
-        (0, 1),
     ]
     surface_vertices = [(int(x * size[0]), int(y * size[1])) for x, y in surface_coeff]
-    draw.polygon(screen, COLORS['grass green'], surface_vertices)
-    draw.aalines(screen, COLORS['black'], False, surface_vertices[:-2])
+    closing_vertices = [(int(x * size[0]), int(y * size[1])) for x, y in closing_coeff]
+    draw.polygon(screen, COLORS['grass green'], surface_vertices + closing_vertices)
+    draw.aalines(screen, COLORS['black'], False, surface_vertices)
 
 
 def draw_animal(screen, x, y, width, height, reverse=False):
