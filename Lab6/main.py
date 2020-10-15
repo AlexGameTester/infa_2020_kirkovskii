@@ -12,7 +12,7 @@ BLACK = (0, 0, 0)
 COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
 
-def new_ball(surface, x_range=(100, 1100), y_range=(100, 900), radius_range=(10, 100), velocity_range=(5, 50)):
+def new_ball(surface, x_range=(100, 1100), y_range=(100, 900), radius_range=(10, 100), velocity_range=(30, 100)):
     """
     Creates new ball with random position, velocity, radius and color
     :param surface: surface to draw on
@@ -22,10 +22,19 @@ def new_ball(surface, x_range=(100, 1100), y_range=(100, 900), radius_range=(10,
     :param velocity_range: tuple of maximal and minimal velocity projection on Ox|Oy axis in pixels per second
     :return: ((x, y, r), (v_x, v_y), color) tuple that contains information about a new ball
     """
+
+    def random_velocity(vel_range):
+        """
+        Return's velocity from range [-v_max, -v_min]u[v_min, v_max] with constant probability density
+        :param vel_range: tuple (v_min, v_max) of maximal and minimal possible velocity
+        :return: random velocity from range [-v_max, -v_min]u[v_min, v_max]
+        """
+        return (-1)**(randint(0, 1)) * randint(*vel_range)
+
     x = randint(*x_range)
     y = randint(*y_range)
     r = randint(*radius_range)
-    v_x, v_y = randint(*velocity_range), randint(*velocity_range)
+    v_x, v_y = random_velocity(velocity_range), random_velocity(velocity_range)
     color = COLORS[randint(0, 5)]
     return (x, y, r), (v_x, v_y), color
 
@@ -79,6 +88,26 @@ def move_ball(position, velocity, dt):
     return int(x + v_x * dt), int(y + v_y * dt)
 
 
+def collide_with_wall(position, velocity, radius, border_size):
+    """
+    Checks if ball collides with a wall and does collision if necessary
+    :param position: tuple (x, y) of ball's coordinates
+    :param velocity: (v_x, v_y) tuple that represents velocity vector
+    :param radius: ball's radius
+    :param border_size: (width, height) tuple of border coordinates
+    :return:
+    """
+    width, height = border_size
+    x, y = position
+    v_x, v_y = velocity
+    if (x <= radius and v_x < 0) or (width - x <= radius and v_x > 0):
+        v_x = -v_x
+    if (y <= radius and v_y < 0) or (height - y <= radius and v_y > 0):
+        v_y = -v_y
+
+    return v_x, v_y
+
+
 def draw_frame(surface, balls, fps):
     """
     Draws next frame on screen
@@ -86,18 +115,21 @@ def draw_frame(surface, balls, fps):
     :param surface: screen to draw on
     :param balls: a list of balls that are on the surface
     """
+    border_size = surface.get_size()
+
     surface.fill(BLACK)
     for i, (pos_and_r, vel, color) in enumerate(balls):
         *pos, r = pos_and_r
         new_pos_x, new_pos_y = move_ball(pos, vel, 1 / fps)
-        balls[i] = (new_pos_x, new_pos_y, r), vel, color
+        new_vel = collide_with_wall(pos, vel, r, border_size)
+        balls[i] = (new_pos_x, new_pos_y, r), new_vel, color
         draw.circle(surface, color, (new_pos_x, new_pos_y), r)
 
 
 def main():
     pg.init()
 
-    # tuple ((x, y, r), (v_x, v_y)) represents a ball
+    # tuple ((x, y, r), (v_x, v_y), color) represents a ball
     balls = []
 
     fps = 30
