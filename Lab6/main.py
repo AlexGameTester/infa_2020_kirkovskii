@@ -9,7 +9,12 @@ GREEN = (0, 255, 0)
 MAGENTA = (255, 0, 255)
 CYAN = (0, 255, 255)
 BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
 COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
+BALLS_NUMBER = 3
+FONT = 0
+
+score = 0
 
 
 def new_ball(surface, x_range=(100, 1100), y_range=(100, 900), radius_range=(10, 100), velocity_range=(30, 100)):
@@ -65,6 +70,7 @@ def on_mouse_down(surface, event, balls):
 
 
 def on_ball_caught(surface, event, balls, ball_index):
+    global score
     """
     Called when player catches the ball
     :param balls: list of all balls that are on the screen
@@ -73,6 +79,8 @@ def on_ball_caught(surface, event, balls, ball_index):
     :param event: MOUSEBUTTONDOWN event of catching click
     """
     balls.pop(ball_index)
+    score += 1
+    balls.append(new_ball(surface))
 
 
 def move_ball(position, velocity, dt):
@@ -115,19 +123,27 @@ def draw_frame(surface, balls, fps):
     :param surface: screen to draw on
     :param balls: a list of balls that are on the surface
     """
+    global score
+
     border_size = surface.get_size()
 
     surface.fill(BLACK)
     for i, (pos_and_r, vel, color) in enumerate(balls):
         *pos, r = pos_and_r
         new_pos_x, new_pos_y = move_ball(pos, vel, 1 / fps)
-        new_vel = collide_with_wall(pos, vel, r, border_size)
+        new_vel = collide_with_wall((new_pos_x, new_pos_y), vel, r, border_size)
         balls[i] = (new_pos_x, new_pos_y, r), new_vel, color
         draw.circle(surface, color, (new_pos_x, new_pos_y), r)
 
+    text_surface = FONT.render(str(score), False, WHITE)
+    text_position = (30, 10)
+    surface.blit(text_surface, text_position)
+
 
 def main():
+    global FONT
     pg.init()
+    FONT = pg.font.SysFont("Comic Sans MS", 46)
 
     # tuple ((x, y, r), (v_x, v_y), color) represents a ball
     balls = []
@@ -139,7 +155,8 @@ def main():
     clock = pg.time.Clock()
     finished = False
 
-    balls.append(new_ball(screen))
+    for n in range(BALLS_NUMBER):
+        balls.append(new_ball(screen))
 
     while not finished:
         clock.tick(fps)
