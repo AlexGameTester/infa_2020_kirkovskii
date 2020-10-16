@@ -70,7 +70,6 @@ def on_mouse_down(surface, event, balls):
 
 
 def on_ball_caught(surface, event, balls, ball_index):
-    global score
     """
     Called when player catches the ball
     :param balls: list of all balls that are on the screen
@@ -78,6 +77,8 @@ def on_ball_caught(surface, event, balls, ball_index):
     :param surface: surface where the ball was located
     :param event: MOUSEBUTTONDOWN event of catching click
     """
+    global score
+
     balls.pop(ball_index)
     score += 1
     balls.append(new_ball(surface))
