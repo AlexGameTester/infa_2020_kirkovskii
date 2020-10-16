@@ -18,7 +18,7 @@ FONT = 0
 score = 0
 
 
-def new_ball(surface, x_range=(100, 1100), y_range=(100, 900), radius_range=(10, 100), velocity_range=(30, 100)):
+def new_ball(surface, x_range=(100, 1100), y_range=(100, 900), radius_range=(10, 100), velocity_range=(80, 180)):
     """
     Creates new ball with random position, velocity, radius and color
     :param surface: surface to draw on
@@ -158,7 +158,6 @@ def main():
 
     # tuple ((x, y, r), (v_x, v_y), color) represents a ball
     balls = [new_ball(screen) for n in range(BALLS_NUMBER)]
-
 
     while not finished:
         clock.tick(fps)
