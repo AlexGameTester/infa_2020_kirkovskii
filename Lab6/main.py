@@ -1,6 +1,7 @@
 import pygame as pg
 import pygame.draw as draw
-from random import randint
+from random import randint, random
+from math import sin, cos, pi
 
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
@@ -30,16 +31,18 @@ def new_ball(surface, x_range=(100, 1100), y_range=(100, 900), radius_range=(10,
 
     def random_velocity(vel_range):
         """
-        Return's velocity from range [-v_max, -v_min]u[v_min, v_max] with constant probability density
+        Return's velocity with magnitude from range [v_min, v_max] and random direction
         :param vel_range: tuple (v_min, v_max) of maximal and minimal possible velocity
         :return: random velocity from range [-v_max, -v_min]u[v_min, v_max]
         """
-        return (-1)**(randint(0, 1)) * randint(*vel_range)
+        v = randint(*vel_range)
+        a = 2 * pi * random()
+        return v * cos(a), v * sin(a)
 
     x = randint(*x_range)
     y = randint(*y_range)
     r = randint(*radius_range)
-    v_x, v_y = random_velocity(velocity_range), random_velocity(velocity_range)
+    v_x, v_y = random_velocity(velocity_range)
     color = COLORS[randint(0, 5)]
     return (x, y, r), (v_x, v_y), color
 
@@ -146,9 +149,6 @@ def main():
     pg.init()
     FONT = pg.font.SysFont("Comic Sans MS", 46)
 
-    # tuple ((x, y, r), (v_x, v_y), color) represents a ball
-    balls = []
-
     fps = 30
     screen = pg.display.set_mode((1200, 900))
 
@@ -156,8 +156,9 @@ def main():
     clock = pg.time.Clock()
     finished = False
 
-    for n in range(BALLS_NUMBER):
-        balls.append(new_ball(screen))
+    # tuple ((x, y, r), (v_x, v_y), color) represents a ball
+    balls = [new_ball(screen) for n in range(BALLS_NUMBER)]
+
 
     while not finished:
         clock.tick(fps)
