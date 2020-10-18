@@ -18,10 +18,9 @@ FONT = 0
 score = 0
 
 
-def new_ball(surface, x_range=(100, 1100), y_range=(100, 900), radius_range=(10, 100), velocity_range=(80, 180)):
+def new_ball(x_range=(100, 1100), y_range=(100, 900), radius_range=(10, 100), velocity_range=(80, 180)):
     """
     Creates new ball with random position, velocity, radius and color
-    :param surface: surface to draw on
     :param x_range: tuple of minimal and maximal x coordinates of the center of the ball
     :param y_range: tuple of minimal and maximal y coordinates of the center of the ball
     :param radius_range: tuple of minimal and maximal ball's radius values
@@ -84,7 +83,7 @@ def on_ball_caught(surface, event, balls, ball_index):
 
     balls.pop(ball_index)
     score += 1
-    balls.append(new_ball(surface))
+    balls.append(new_ball())
 
 
 def move_ball(position, velocity, dt):
@@ -157,7 +156,7 @@ def main():
     finished = False
 
     # tuple ((x, y, r), (v_x, v_y), color) represents a ball
-    balls = [new_ball(screen) for n in range(BALLS_NUMBER)]
+    balls = [new_ball() for n in range(BALLS_NUMBER)]
 
     while not finished:
         clock.tick(fps)
