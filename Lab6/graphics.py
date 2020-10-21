@@ -17,7 +17,7 @@ def draw_right_poly(surface, color, n, position, radius, rotation=0):
     x0, y0 = position
 
     angle_step = 2 * math.pi / n
-    angle0 = math.radians(rotation) - angle_step / 2 # with this minus the symmetry is being kept
+    angle0 = math.radians(rotation) - angle_step / 2  # with this minus the symmetry is being kept
 
     vertices = [
         (int(x0 + radius * math.sin(angle0 + i * angle_step)), int(y0 + radius * math.cos(angle0 + i * angle_step)))

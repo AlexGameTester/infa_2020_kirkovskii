@@ -1,5 +1,6 @@
 import pygame as pg
 import pygame.draw as draw
+import graphics
 from random import randint, random
 from math import sin, cos, pi
 
@@ -13,6 +14,7 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 BALLS_NUMBER = 3
+POLYS_NUMBER = 5
 FONT = 0
 
 score = 0
@@ -47,17 +49,21 @@ def new_ball(x_range=(100, 1100), y_range=(100, 900), radius_range=(10, 100), ve
     return (x, y, r), (v_x, v_y), color
 
 
-def new_poly(vertices_range=(3, 8), x_range=(100, 1100), y_range=(100, 900), radius_range=(10, 100),
-             velocity_range=(80, 180), acceleration_range=(0, 8)):
+def new_polygon(vertices_range=(3, 8), x_range=(100, 1100), y_range=(100, 900), radius_range=(10, 100),
+                velocity_range=(80, 180), acceleration_range=(20, 40), rotation_speed_range=(30, 90)):
     """
-    Creates new poly with random number of vertices, position, velocity, acceleration, radius and color and rotation set to 0
-    :param acceleration_range: tuple of maximal and minimal acceleration projection on Ox|Oy axis in pixels per second squared
-    :param vertices_range: tuple of minimal and maximal numbers of poly's vertices
-    :param x_range: tuple of minimal and maximal x coordinates of the center of the poly
-    :param y_range: tuple of minimal and maximal y coordinates of the center of the poly
-    :param radius_range: tuple of minimal and maximal poly's outer radius values
+    Creates new polygon with random number of vertices, position, velocity,
+    acceleration, rotation_speed, radius and color
+    and rotation set to 0
+    :param acceleration_range: tuple of maximal and minimal acceleration projection on Ox|Oy axis
+    in pixels per second squared
+    :param vertices_range: tuple of minimal and maximal numbers of polygon's vertices
+    :param x_range: tuple of minimal and maximal x coordinates of the center of the polygon
+    :param y_range: tuple of minimal and maximal y coordinates of the center of the polygon
+    :param radius_range: tuple of minimal and maximal polygon's outer radius values
     :param velocity_range: tuple of maximal and minimal velocity projection on Ox|Oy axis in pixels per second
-    :return: dictionary that stores poly's properties
+    :param rotation_speed_range: tuple of maximal and minimal rotation speed absolute value
+    :return: dictionary that stores polygon's properties
     """
 
     n = randint(*vertices_range)
@@ -66,9 +72,10 @@ def new_poly(vertices_range=(3, 8), x_range=(100, 1100), y_range=(100, 900), rad
     r = randint(*radius_range)
     vel = random_vector(velocity_range)
     acc = random_vector(acceleration_range)
+    rot_speed = (-1)**randint(0, 1) * randint(*rotation_speed_range)
     color = COLORS[randint(0, 5)]
-    return {'vertices': n, 'position': (x, y), 'velocity': vel,
-            'acceleration': acc, 'rotation': 0, 'radius': r, 'color': color}
+    return {'vertices': n, 'position': (x, y), 'velocity': vel, 'acceleration': acc,
+            'rotation': 0, 'rotation_speed': rot_speed, 'radius': r, 'color': color}
 
 
 def distance(p1, p2):
@@ -111,17 +118,39 @@ def on_ball_caught(surface, event, balls, ball_index):
     balls.append(new_ball())
 
 
-def move_ball(position, velocity, dt):
+def change_vector(vector, vector_changer, dt):
     """
-    Moves ball with velocity
-    :param position: tuple (x, y) of ball's coordinates before motion happens
+    Adds vector_changer * dt to the vector
+    :param vector: tuple (v_x, v_y) that represents a vector to change
+    :param vector_changer: tuple (v_x, v_y) that represents a vector that provides changes
+    :param dt: time interval
+    :return: vector + vector_changer * dt
+    """
+    x, y = vector
+    c_x, c_y = vector_changer
+    return x + c_x * dt, y + c_y * dt
+
+
+def move_object(position, velocity, dt):
+    """
+    Moves object with velocity
+    :param position: tuple (x, y) of object's coordinates before motion happens
     :param velocity: (v_x, v_y) tuple that represents velocity vector
     :param dt: time interval of motion
-    :return: new position of the ball
+    :return: new position of the object
     """
-    x, y = position
-    v_x, v_y = velocity
-    return int(x + v_x * dt), int(y + v_y * dt)
+    return change_vector(position, velocity, dt)
+
+
+def accelerate_object(velocity, acceleration, dt):
+    """
+    Changes object's velocity with acceleration
+    :param velocity: (v_x, v_y) tuple that represents velocity vector
+    :param acceleration: (a_x, a_y) tuple that represents acceleration
+    :param dt: time interval of motion
+    :return: new position of the object
+    """
+    return change_vector(velocity, acceleration, dt)
 
 
 def collide_with_wall(position, velocity, radius, border_size):
@@ -144,24 +173,42 @@ def collide_with_wall(position, velocity, radius, border_size):
     return v_x, v_y
 
 
-def draw_frame(surface, balls, fps):
+def draw_frame(surface, balls, polygons, fps):
     """
     Draws next frame on screen
-    :type fps: FPS
     :param surface: screen to draw on
     :param balls: a list of balls that are on the surface
+    :param polygons: a list of polygons that are on the surface
+    "param fps: FPS
     """
     global score
 
     border_size = surface.get_size()
+    dt = 1 / fps
 
     surface.fill(BLACK)
     for i, (pos_and_r, vel, color) in enumerate(balls):
         *pos, r = pos_and_r
-        new_pos_x, new_pos_y = move_ball(pos, vel, 1 / fps)
+        new_pos_x, new_pos_y = move_object(pos, vel, dt)
         new_vel = collide_with_wall((new_pos_x, new_pos_y), vel, r, border_size)
         balls[i] = (new_pos_x, new_pos_y, r), new_vel, color
-        draw.circle(surface, color, (new_pos_x, new_pos_y), r)
+        int_pos = int(new_pos_x), int(new_pos_y)
+        draw.circle(surface, color, int_pos, r)
+
+    for poly in polygons:
+        r = poly['radius']
+        n = poly['vertices']
+        rot_speed = poly['rotation_speed']
+        color = poly['color']
+        pos = poly['position']
+        vel = poly['velocity']
+        vel = collide_with_wall(pos, vel, r, border_size)
+        acc = poly['acceleration']
+        poly['position'] = move_object(pos, vel, dt)
+        poly['velocity'] = accelerate_object(vel, acc, dt)
+        poly['rotation'] += rot_speed * dt
+        int_pos = tuple(map(int, poly['position']))
+        graphics.draw_right_poly(surface, color, n, int_pos, r, rotation=poly['rotation'])
 
     text_surface = FONT.render(str(score), False, WHITE)
     text_position = (30, 10)
@@ -173,7 +220,7 @@ def main():
     pg.init()
     FONT = pg.font.SysFont("Comic Sans MS", 46)
 
-    fps = 30
+    fps = 50
     screen = pg.display.set_mode((1200, 900))
 
     pg.display.update()
@@ -183,6 +230,8 @@ def main():
     # tuple ((x, y, r), (v_x, v_y), color) represents a ball
     balls = [new_ball() for n in range(BALLS_NUMBER)]
 
+    polygons = [new_polygon() for n in range(POLYS_NUMBER)]
+
     while not finished:
         clock.tick(fps)
         for event in pg.event.get():
@@ -191,7 +240,7 @@ def main():
             elif event.type == pg.MOUSEBUTTONDOWN:
                 on_mouse_down(screen, event, balls)
 
-        draw_frame(screen, balls, fps)
+        draw_frame(screen, balls, polygons, fps)
         pg.display.update()
 
     pg.quit()
