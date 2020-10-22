@@ -18,7 +18,11 @@ POLYS_NUMBER = 5
 FONT = 0
 SCORE_FOR_POLY = 0.5
 SCORE_FOR_BALL = 1
+STARTING_TIME = 10
+TIME_FOR_BALL = 0.4
+TIME_FOR_POLY = 0.13
 
+time_left = 0
 score = 0
 
 
@@ -130,10 +134,15 @@ def on_poly_caught(surface, event, polygons, poly_index):
     :param poly_index: index of the poly in polygons that has been caught
     :return: integer amount of score player has got from this object
     """
+    global time_left
 
-    got_score = int(SCORE_FOR_POLY * polygons[poly_index]['vertices'])
+    n = polygons[poly_index]['vertices']
+    got_score = int(SCORE_FOR_POLY * n)
+    time_left += n * TIME_FOR_POLY
+
     polygons.pop(poly_index)
     polygons.append(new_polygon())
+
     return got_score
 
 
@@ -146,6 +155,9 @@ def on_ball_caught(surface, event, balls, ball_index):
     :param event: MOUSEBUTTONDOWN event of catching click
     :return: integer amount of score player has got from this object
     """
+    global time_left
+
+    time_left += TIME_FOR_BALL
 
     balls.pop(ball_index)
     balls.append(new_ball())
@@ -215,12 +227,13 @@ def draw_frame(surface, balls, polygons, fps):
     :param polygons: a list of polygons that are on the surface
     "param fps: FPS
     """
-    global score
+    global score, time_left
 
     border_size = surface.get_size()
     dt = 1 / fps
 
     surface.fill(BLACK)
+
     for i, (pos_and_r, vel, color) in enumerate(balls):
         *pos, r = pos_and_r
         new_pos_x, new_pos_y = move_object(pos, vel, dt)
@@ -244,13 +257,21 @@ def draw_frame(surface, balls, polygons, fps):
         int_pos = tuple(map(int, poly['position']))
         graphics.draw_right_poly(surface, color, n, int_pos, r, rotation=poly['rotation'])
 
-    text_surface = FONT.render(str(score), False, WHITE)
-    text_position = (30, 10)
-    surface.blit(text_surface, text_position)
+    time_left = max(time_left - dt, 0)
+
+    # drawing scores
+    score_surface = FONT.render(str(score), False, WHITE)
+    score_position = (30, 10)
+    surface.blit(score_surface, score_position)
+
+    # drawing timer
+    timer_surface = FONT.render('%.2f' % time_left, False, WHITE)
+    timer_position = (1050, 10)
+    surface.blit(timer_surface, timer_position)
 
 
 def main():
-    global FONT
+    global FONT, time_left
     pg.init()
     FONT = pg.font.SysFont("Comic Sans MS", 46)
 
@@ -260,13 +281,14 @@ def main():
     pg.display.update()
     clock = pg.time.Clock()
     finished = False
+    time_left = STARTING_TIME
 
     # tuple ((x, y, r), (v_x, v_y), color) represents a ball
     balls = [new_ball() for n in range(BALLS_NUMBER)]
 
     polygons = [new_polygon() for n in range(POLYS_NUMBER)]
 
-    while not finished:
+    while not finished and time_left > 0:
         clock.tick(fps)
         for event in pg.event.get():
             if event.type == pg.QUIT:
