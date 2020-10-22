@@ -2,7 +2,7 @@ import pygame as pg
 import pygame.draw as draw
 import graphics
 from random import randint, random
-from math import sin, cos, pi
+from math import sin, cos, pi, sqrt
 
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
@@ -16,6 +16,8 @@ COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 BALLS_NUMBER = 3
 POLYS_NUMBER = 5
 FONT = 0
+SCORE_FOR_POLY = 0.5
+SCORE_FOR_BALL = 1
 
 score = 0
 
@@ -90,17 +92,49 @@ def distance(p1, p2):
     return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
 
 
-def on_mouse_down(surface, event, balls):
+def on_mouse_down(surface, event, balls, polygons):
     """
     Mouse button down event handler
     :param surface: main screen of te app
     :param event: a MOUSEBUTTONDOWN event
     :param balls: list of balls that are on the surface
+    :param polygons: list of polygons that are on the surface
     """
+    global score
+    objects_caught = 0
+    got_score = 0
+
     for i, (pos, vel, color) in enumerate(balls):
         x, y, r = pos
         if distance(event.pos, (x, y)) <= r:
-            on_ball_caught(surface, event, balls, i)
+            got_score += on_ball_caught(surface, event, balls, i)
+            objects_caught += 1
+
+    for i, poly in enumerate(polygons):
+        poly_pos = poly['position']
+        r = poly['radius']
+        if distance(event.pos, poly_pos) <= r:
+            got_score += on_poly_caught(surface, event, polygons, i)
+            objects_caught += 1
+
+    # player gets extra score if he catches more than one object at a time
+    score += objects_caught * got_score
+
+
+def on_poly_caught(surface, event, polygons, poly_index):
+    """
+    Called when player catches a poly
+    :param surface: surface where the poly was located
+    :param event: MOUSEBUTTONDOWN event of catching click
+    :param polygons: list of all polygons that are on the screen
+    :param poly_index: index of the poly in polygons that has been caught
+    :return: integer amount of score player has got from this object
+    """
+
+    got_score = int(SCORE_FOR_POLY * polygons[poly_index]['vertices'])
+    polygons.pop(poly_index)
+    polygons.append(new_polygon())
+    return got_score
 
 
 def on_ball_caught(surface, event, balls, ball_index):
@@ -110,12 +144,12 @@ def on_ball_caught(surface, event, balls, ball_index):
     :param ball_index: index of a ball in balls that has been caught
     :param surface: surface where the ball was located
     :param event: MOUSEBUTTONDOWN event of catching click
+    :return: integer amount of score player has got from this object
     """
-    global score
 
     balls.pop(ball_index)
-    score += 1
     balls.append(new_ball())
+    return SCORE_FOR_BALL
 
 
 def change_vector(vector, vector_changer, dt):
@@ -238,7 +272,7 @@ def main():
             if event.type == pg.QUIT:
                 finished = True
             elif event.type == pg.MOUSEBUTTONDOWN:
-                on_mouse_down(screen, event, balls)
+                on_mouse_down(screen, event, balls, polygons)
 
         draw_frame(screen, balls, polygons, fps)
         pg.display.update()
