@@ -277,8 +277,19 @@ def read_name(screen, fps, clock):
     :param fps: FPS
     :param clock: pygame clock
     """
-    def draw_frame(surface, name):
-        pass
+    def draw_name_frame(surface : pg.Surface, name):
+        width, height = surface.get_size()
+        message = 'Write your name:'
+        message_pos = (width // 2, height // 10 * 4)
+        message_surface = FONT.render(message, False, WHITE)
+
+        name_string = ''.join(name)
+        name_pos = (width // 2, height // 2)
+        name_surface = FONT.render(name_string, False, WHITE)
+
+        surface.fill(BLACK)
+        surface.blit(message_surface, message_pos)
+        surface.blit(name_surface, name_pos)
 
     global score
     finished = False
@@ -302,7 +313,7 @@ def read_name(screen, fps, clock):
                 else:
                     name.append(event.unicode)
 
-        draw_frame(screen, name)
+        draw_name_frame(screen, name)
         pg.display.update()
 
 
