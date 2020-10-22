@@ -1,6 +1,8 @@
 import pygame as pg
 import pygame.draw as draw
-import graphics
+import datetime
+import graphics  # graphics.py file
+from os.path import exists
 from random import randint, random
 from math import sin, cos, pi, sqrt
 
@@ -317,12 +319,35 @@ def read_name(screen, fps, clock):
         pg.display.update()
 
 
-def write_name(name, path=''):
+def write_name(name, path='leaderboard.txt'):
     """
     Writes player's name and score to leaderboard file
     :param name: player's name
     :param path: path to leaderboard file
     """
+    def create_line(name, score):
+        return f'{datetime.datetime.now().strftime("%d.%m.%Y")}--{name}--{score}\n'
+
+    def key_function(line):
+        *data, score = line.split('--')
+        return score
+
+    global score
+
+    if not exists(path):
+        f = open(path, 'w')  # creating an empty file
+        f.close()
+
+    try:
+        with open(path, 'r') as f:
+            lines = f.readlines()
+            lines.append(create_line(name, score))
+            lines.sort(key=key_function)
+        with open(path, 'w') as f:
+            f.writelines(lines)
+    except IOError:
+        print('Unable to write name in file')
+
     print(name)
     pass
 
