@@ -270,6 +270,52 @@ def draw_frame(surface, balls, polygons, fps):
     surface.blit(timer_surface, timer_position)
 
 
+def read_name(screen, fps, clock):
+    """
+    Reads players name and writes it to leaderboard
+    :param screen: main screen of the game
+    :param fps: FPS
+    :param clock: pygame clock
+    """
+    def draw_frame(surface, name):
+        pass
+
+    global score
+    finished = False
+
+    name = []
+
+    while not finished:
+        clock.tick(fps)
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                finished = True
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    finished = True
+                elif event.key == pg.K_BACKSPACE:
+                    if name:
+                        name.pop()
+                elif event.key == pg.K_RETURN:
+                    write_name(''.join(name))
+                    finished = True
+                else:
+                    name.append(event.unicode)
+
+        draw_frame(screen, name)
+        pg.display.update()
+
+
+def write_name(name, path=''):
+    """
+    Writes player's name and score to leaderboard file
+    :param name: player's name
+    :param path: path to leaderboard file
+    """
+    print(name)
+    pass
+
+
 def main():
     global FONT, time_left
     pg.init()
@@ -298,6 +344,8 @@ def main():
 
         draw_frame(screen, balls, polygons, fps)
         pg.display.update()
+
+    read_name(screen, fps, clock)
 
     pg.quit()
 
