@@ -21,8 +21,8 @@ FONT = 0
 SCORE_FOR_POLY = 0.5
 SCORE_FOR_BALL = 1
 STARTING_TIME = 10
-TIME_FOR_BALL = 0.4
-TIME_FOR_POLY = 0.13
+TIME_FOR_BALL = 0.38
+TIME_FOR_POLY = 0.12
 
 time_left = 0
 score = 0
@@ -39,7 +39,7 @@ def random_vector(magnitude_range):
     return v * cos(a), v * sin(a)
 
 
-def new_ball(x_range=(100, 1100), y_range=(100, 900), radius_range=(10, 100), velocity_range=(80, 180)):
+def new_ball(x_range=(100, 1100), y_range=(100, 900), radius_range=(18, 70), velocity_range=(180, 450)):
     """
     Creates new ball with random position, velocity, radius and color
     :param x_range: tuple of minimal and maximal x coordinates of the center of the ball
@@ -57,8 +57,8 @@ def new_ball(x_range=(100, 1100), y_range=(100, 900), radius_range=(10, 100), ve
     return (x, y, r), (v_x, v_y), color
 
 
-def new_polygon(vertices_range=(3, 8), x_range=(100, 1100), y_range=(100, 900), radius_range=(10, 100),
-                velocity_range=(80, 180), acceleration_range=(20, 40), rotation_speed_range=(30, 90)):
+def new_polygon(vertices_range=(3, 8), x_range=(100, 1100), y_range=(100, 900), radius_range=(12, 70),
+                velocity_range=(120, 300), acceleration_range=(80, 250), rotation_speed_range=(30, 120)):
     """
     Creates new polygon with random number of vertices, position, velocity,
     acceleration, rotation_speed, radius and color
@@ -282,11 +282,11 @@ def read_name(screen, fps, clock):
     def draw_name_frame(surface : pg.Surface, name):
         width, height = surface.get_size()
         message = 'Write your name:'
-        message_pos = (width // 2, height // 10 * 4)
+        message_pos = (width // 4, height // 10 * 4)
         message_surface = FONT.render(message, False, WHITE)
 
         name_string = ''.join(name)
-        name_pos = (width // 2, height // 2)
+        name_pos = (width // 3, height // 2)
         name_surface = FONT.render(name_string, False, WHITE)
 
         surface.fill(BLACK)
@@ -329,8 +329,11 @@ def write_name(name, path='leaderboard.txt'):
         return f'{datetime.datetime.now().strftime("%d.%m.%Y")}--{name}--{score}\n'
 
     def key_function(line):
-        *data, score = line.split('--')
-        return score
+        *data, score_str = line.split('--')
+        try:
+            return int(score_str)
+        except:
+            return -1
 
     global score
 
@@ -342,14 +345,13 @@ def write_name(name, path='leaderboard.txt'):
         with open(path, 'r') as f:
             lines = f.readlines()
             lines.append(create_line(name, score))
-            lines.sort(key=key_function)
+            lines.sort(key=key_function, reverse=True)
         with open(path, 'w') as f:
             f.writelines(lines)
     except IOError:
         print('Unable to write name in file')
 
     print(name)
-    pass
 
 
 def main():
@@ -359,6 +361,7 @@ def main():
 
     fps = 50
     screen = pg.display.set_mode((1200, 900))
+    pg.display.set_caption("The coolest game was ever created in the last ten million years")
 
     pg.display.update()
     clock = pg.time.Clock()
@@ -381,7 +384,8 @@ def main():
         draw_frame(screen, balls, polygons, fps)
         pg.display.update()
 
-    read_name(screen, fps, clock)
+    if not finished:
+        read_name(screen, fps, clock)
 
     pg.quit()
 
