@@ -2,6 +2,14 @@ from abc import ABC, abstractmethod
 import cmath
 
 
+class Colors:
+    """
+    Class that contains basic colors
+    """
+    black = (0, 0, 0)
+    red = (255, 0, 0)
+
+
 class Vector:
     """
     Class that represents planar vector with it's common operations
@@ -10,6 +18,7 @@ class Vector:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        self._iter_counter = 0
 
     def __add__(self, other):
         return Vector(self.x + other.x, self.y + other.y)
@@ -19,6 +28,9 @@ class Vector:
             raise TypeError('other must be int or float but received', type(other))
 
         return Vector(self.x * other, self.y * other)
+
+    def __iter__(self):
+        return [self.x, self.y].__iter__()
 
     def magnitude(self):
         """
@@ -51,14 +63,21 @@ class GameObject(ABC):
     Represents an abstract game object with it's default properties and methods
     """
 
-    def __init__(self, pos: Vector):
+    def __init__(self, pos: Vector, game):
+        """
+        GameObject constructor
+        :param pos: position of object(not on screen but in fixed coordinate system of a game)
+        :param game: Game class object which contains this GameObject
+        """
         self.pos = pos
         self.is_alive = True
+        game.add_object(self)
 
     @abstractmethod
-    def update(self):
+    def update(self, fps):
         """
         Called once in every frame when updating of objects occur
+        :param fps: FPS
         :return: None
         """
         pass
