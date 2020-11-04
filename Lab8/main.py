@@ -1,5 +1,6 @@
 import pygame as pg
 from Lab8.common import GameObject, Colors
+from Lab8.cannon import Cannon
 
 
 class Game:
@@ -48,6 +49,8 @@ class Game:
         Starts game's main loop. Can execute infinitely long
         """
         finished = False
+
+        self.cannon = Cannon(self)
 
         while not finished:
             self.clock.tick(self.fps)
