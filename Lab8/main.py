@@ -18,9 +18,25 @@ class Game:
         self.screen = pg.display.set_mode(resolution)
         self.clock = pg.time.Clock()
         self.object_pool = []
+        self.event_listeners = {}
 
     def add_object(self, game_object: GameObject):
+        """
+        Adds new game object to pool. This object is updated and drawn in every frame
+        :param game_object: an object to add
+        """
         self.object_pool.append(game_object)
+
+    def subscribe_to_event(self, event_type, listener):
+        """
+        Subscribes a listener function to event so it is called when event happens
+        :param event_type: event.type value of an event to listen
+        :param listener: (event) -> None event listener function
+        """
+        if event_type in self.event_listeners.keys():
+            self.event_listeners[event_type].append(listener)
+        else:
+            self.event_listeners[event_type] = [listener]
 
     def update(self):
         """
@@ -55,6 +71,9 @@ class Game:
         while not finished:
             self.clock.tick(self.fps)
             for event in pg.event.get():
+                if event.type in self.event_listeners:
+                    for listener in self.event_listeners[event.type]:
+                        listener(event)
                 if event.type == pg.QUIT:
                     finished = True
                     self.on_finished()
