@@ -1,6 +1,6 @@
 import pygame as pg
 import pygame.draw as draw
-from Lab8.common import GameObject, Vector, Colors
+from Lab8.common import GameObject, Vector, Colors, PhysicalObject
 
 
 class Cannon(GameObject):
@@ -32,7 +32,6 @@ class Cannon(GameObject):
         self.direction = (Vector(x, y) - self.pos).normalize()
 
         if self.is_mouse_down:
-            print("Adding shooting power")
             self.shooting_power = min(self.shooting_power + Cannon.shooting_power_per_second * self.game.dt,
                                       Cannon.max_shooting_power)
 
@@ -77,17 +76,18 @@ class Cannon(GameObject):
         self._projectiles.append(Projectile(projectile_pos, projectile_velocity, self.game, self))
 
 
-class Projectile(GameObject):
+class Projectile(PhysicalObject):
+    """
+    Represents basic projectile that is shot by a cannon and can damage enemies
+    """
     gravitational_acceleration = Vector(0, 20)
     air_resistance_coefficient = 0.02
-    max_radius = 40
+    max_radius = 10
 
     def __init__(self, pos, velocity, game, cannon):
-        super().__init__(pos, game)
+        super().__init__(pos, game, velocity, Projectile.max_radius)
 
         self.cannon = cannon
-
-        self.velocity = velocity
 
     def update(self):
         dt = self.game.dt
@@ -101,3 +101,9 @@ class Projectile(GameObject):
 
     def on_destroyed(self):
         pass
+
+    def check_collision(self, other):
+        return super().check_collision(other)
+
+    def on_collision(self, other):
+        print("Collision at", self.pos)

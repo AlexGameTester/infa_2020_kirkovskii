@@ -1,7 +1,8 @@
 import random
-
+import itertools
 import pygame as pg
-from Lab8.common import GameObject, Colors, Vector
+
+from Lab8.common import GameObject, Colors, Vector, PhysicalObject
 from Lab8.cannon import Cannon
 from Lab8.enemy import Enemy
 
@@ -24,6 +25,7 @@ class Game:
         self.screen = pg.display.set_mode(resolution)
         self.clock = pg.time.Clock()
         self.object_pool = []
+        self.physical_pool = []
         self.event_listeners = {}
 
     def add_object(self, game_object: GameObject):
@@ -32,6 +34,13 @@ class Game:
         :param game_object: an object to add
         """
         self.object_pool.append(game_object)
+
+    def add_physical(self, physical_object: PhysicalObject):
+        """
+        Adds new physical object to pool. Collision of this object with other physical objects is checked every frame
+        :param physical_object:
+        """
+        self.physical_pool.append(physical_object)
 
     def subscribe_to_event(self, event_type, listener):
         """
@@ -44,10 +53,21 @@ class Game:
         else:
             self.event_listeners[event_type] = [listener]
 
+    def update_physics(self):
+        """
+        Called once in every frame to check collisions
+        """
+        for object1, object2 in itertools.combinations(self.physical_pool, 2):
+            if object1.check_collision(object2):
+                object1.on_collision(object2)
+                object2.on_collision(object1)
+
     def update(self):
         """
         Called once in every frame to update game objects
         """
+        self.update_physics()
+
         for game_object in self.object_pool:
             game_object.update()
 
@@ -95,7 +115,6 @@ class Game:
                     self.on_finished()
 
             do_loop()
-
 
 
 def main():
