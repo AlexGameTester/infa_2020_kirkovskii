@@ -32,6 +32,9 @@ class Vector:
     def __iter__(self):
         return [self.x, self.y].__iter__()
 
+    def __sub__(self, other):
+        return self + (other * (-1))
+
     def magnitude(self):
         """
         Returns magnitude of the vector

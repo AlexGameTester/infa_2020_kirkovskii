@@ -4,10 +4,14 @@ from Lab8.common import GameObject, Vector, Colors
 
 
 class Cannon(GameObject):
+    """
+    Represents a stationary cannon that can shoot projectiles
+    """
     max_shooting_power = 1.0
     shooting_power_per_second = 0.25
     target_max_velocity = 30
-    size = 1 / 20
+    line_width = 20
+    line_length = 150
     y_pos = 100
 
     def __init__(self, game):
@@ -22,14 +26,13 @@ class Cannon(GameObject):
 
     def update(self, fps):
         x, y = pg.mouse.get_pos()
-        self.direction = Vector(x, y).normalize()
+        self.direction = (Vector(x, y) - self.pos).normalize()
 
     def draw(self, surface):
-        width, height = self.game.resolution
-        x_center, y_center = self.pos
-        rect = (int(x_center - Cannon.size * width / 2), int(y_center - Cannon.size * height / 2),
-                int(Cannon.size * width), int(Cannon.size * height))
-        draw.rect(surface, Colors.red, rect)
+        start_pos = tuple(self.pos)
+        end_pos = tuple(self.pos + self.direction * Cannon.line_length)
+
+        draw.line(surface, Colors.red, start_pos, end_pos, Cannon.line_width)
 
     def on_destroyed(self):
         pass
