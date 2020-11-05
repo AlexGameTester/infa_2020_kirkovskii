@@ -3,213 +3,335 @@ import pygame.draw as draw
 import math
 import random as rand
 
-def main(draw_scene, colors):
-    pygame.init()
-
-    FPS = 60
-    screen_size = (500, 800)
-    screen = pygame.display.set_mode(screen_size)
-    screen.fill(colors['sky blue'])
-
-    draw_scene(screen, colors)
-    pygame.display.update()
-    clock = pygame.time.Clock()
-
-    while True:
-        clock.tick(FPS)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-
-
-def rand_pos(r, offset):
-    ox, oy = offset
-    angle = rand.random()
-    return (r * math.sin(2*math.pi * angle) + ox, r * math.cos(2 * math.pi * angle) + oy)
-
-
-def draw_background(screen, colors):
-    polygon_closing_verticies = [(500, 800), (0, 800)]
-
-    def draw_mountains():
-        mountains_verticies = [
-            (0, 260),
-            (90, 200),
-            (130, 220),
-            (250, 100),
-            (270, 180),
-            (320, 220),
-            (400, 150),
-            (430, 180),
-            (500, 140)
-        ]
-
-        draw.polygon(screen, colors['mountain grey'], mountains_verticies + polygon_closing_verticies)
-
-        draw.aalines(screen, colors['black'], False, mountains_verticies)
-
-    def draw_surface():
-        surface_verticies = [
-            (0, 310),
-            (20, 307),
-            (30, 309),
-            (45, 315),
-            (230, 320),
-            (235, 330),
-            (240, 345),
-            (244, 380),
-            (248, 390),
-            (252, 420),
-            (260, 422),
-            (280, 419),
-            (500, 420),
-        ]
-
-        draw.polygon(screen, colors['grass green'],
-                     surface_verticies + polygon_closing_verticies)
-        draw.aalines(screen, colors['black'], False, surface_verticies)
-
-    draw_mountains()
-    draw_surface()
-
-
-def draw_animal(screen, colors, x, y, size, reverse=False):
-    def draw_neck(surface, x, y):
-        def draw_head(x, y):
-            def draw_horn(x, y):
-                horn_verticies = [(x, y), (x - 22, y - 30), (x + 2, y - 6)]
-                draw.polygon(surface, colors['white'], horn_verticies)
-
-            def draw_eye(x, y):
-                eye_height = 30
-                eye_width = 34
-                draw.ellipse(surface, colors['eye purple'], (int(x - eye_width/2), int(y - eye_height/2), eye_width, eye_height))
-                pupil_radius = 9
-                draw.circle(surface, colors['black'], (x + 3, y), pupil_radius)
-                flare_start = (x - 7, y - 6)
-                flare_end = (x + 1, y - 3)
-                draw.line(surface, colors['white'], flare_start, flare_end, 6)
-
-            # draw_horn = lambda x, y: draw.polygon(screen, colors['white'], )
-            head_rect = (x, y, 62, 40)
-            draw.ellipse(surface, colors['white'], head_rect)
-            
-            eye_offset_x, eye_offset_y = 28, 18
-            draw_eye(x + eye_offset_x, y + eye_offset_y)
-
-            horn_offset_x, horn_offset_y = 5, 12
-            horn_delta_y, horn_delta_x = 6, -6
-            draw_horn(x + horn_offset_x, y + horn_offset_y)
-            draw_horn(x + horn_offset_x + horn_delta_x, y + horn_offset_y + horn_delta_y)
-
-        neck_height = 190
-        neck_width = 40
-        draw.ellipse(surface, colors['white'], (x, y, neck_width, neck_height))
-        # draw_head(x + neck_width // 2, y - neck_height - 8)
-        draw_head(x + 2, y - 8)
-
-    def draw_leg(surface, x, y):
-        top_height = 70
-        top_rect = (x + 0, y + 0, 40, top_height)
-        draw.ellipse(surface, colors['white'], top_rect)
-
-        bot_rect = (x - 2, y + top_height - 4, 44, 80)
-        draw.ellipse(surface, colors['white'],bot_rect)
-
-        foot_rect = (x + 9, y + 130, 58, 30)
-        draw.ellipse(surface, colors['white'], foot_rect)
-
-    surface = pygame.Surface((600, 800))
-    surface.fill(colors['flower key color'])
-
-    draw_leg(surface, 65, 435)
-    draw_leg(surface, 105, 450)
-    draw_leg(surface, 300, 450)
-    draw_leg(surface, 335, 430)
-    body_rect = (50, 340, 350, 140)
-    draw_neck(surface, 345, 240)
-    draw.ellipse(surface, colors['white'], body_rect)
-
-    if reverse:
-        surface = pygame.transform.flip(surface, True, False)
-
-    surface = pygame.transform.scale(surface, (int(600 * size), int(800 * size)))
-    surface.set_colorkey(colors['flower key color'])
-    screen.blit(surface, (x, y))
-
-def draw_bush(screen, colors, x, y, scale):
-
-    def get_flower(scale, rotation_angle=0):
-        surface = pygame.Surface((400, 400))
-        surface.fill(colors['flower key color'])
-        # flower.set_colorkey(colors['flower key color'])
-        x0 = 200
-        y0 = 200
-
-        centre_x = 60
-        centre_y = 24
-        draw.ellipse(surface, colors['yellow'], ((x0 - centre_x // 2, y0 - centre_y // 2), (centre_x, centre_y)))
-
-        number_of_petals = 7
-        dist_x = 36
-        dist_y = 22
-        petal_x = 48
-        petal_dx = 2
-        petal_y = 26
-        petal_dy = 2
-        for angle in [2*math.pi/number_of_petals * n for n in range(number_of_petals)]:
-            size_x = petal_x + rand.randint(-petal_dx, petal_dx)
-            size_y = petal_y + rand.randint(-petal_dy, petal_dy)
-            rect = (int(x0 + dist_x * math.cos(angle) - size_x/2), int(y0 + dist_y * math.sin(angle) - size_y/2), size_x, size_y)
-            draw.ellipse(surface, colors['white'], rect)
-            draw.ellipse(surface, colors['black'], rect, 1)
-            angle += 2*math.pi / number_of_petals
-        
-        # draw.ellipse(flower, colors['yellow'], ((x0 - centre_x/2, y0 - centre_y/2), (centre_x, centre_y)))
-
-        surface = pygame.transform.scale(surface, (int(400 * scale), int(400 * scale)))
-        surface.set_colorkey(colors['flower key color'])
-        return surface
-
-    number_of_flowers = rand.randint(3, 6)
-
-    surface = pygame.Surface((600, 600))
-    surface.fill(colors['flower key color'])
-
-    bush_radius = 270
-    draw.circle(surface, colors['bush green'], (300, 300), bush_radius)
-    flower_area_radius = bush_radius - 200
-    min_size = 0.4
-
-    offset = (200, 200) # half of flower surface size
-    surface.blits([(get_flower(min_size + (1 - min_size) * rand.random()), rand_pos(flower_area_radius, offset)) for i in range(number_of_flowers)])
-
-    surface = pygame.transform.scale(surface, (int(600 * scale), int(600 * scale)))
-    surface.set_colorkey(colors['flower key color'])
-    screen.blit(surface, (x, y))
-
-
-
-
-
-def draw_scene(screen, colors):
-    draw_background(screen, colors)
-    draw_animal(screen, colors, 0, 0, 0.8)
-    draw_bush(screen, colors, 250, 450, 0.45)
-
-
-colors = {
+COLORS = {
     'yellow': 0xFFFF00,
     'black': 0x0,
     'white': 0xffffff,
     'red': 0xff0000,
     'sky blue': 0xafdde9,
     'grass green': 0xaade87,
-    'mountain grey': 0xb3b3b3, # TODO: Set appropriate color
+    'mountain grey': 0xb3b3b3,
     'flower key color': 0xf0f0aa,
     'eye purple': 0xe580ff,
     'bush green': 0x71c837
 }
 
+
+def main():
+    """
+    Initializes pygame, draws background, animal and bush.
+
+    :return: None
+    """
+    pygame.init()
+    FPS = 60
+
+    screen_size = (794, 1123)
+    screen = pygame.display.set_mode(screen_size)
+    screen.fill(COLORS['sky blue'])
+
+    draw_mountains(screen, screen_size)
+    draw_land(screen, screen_size)
+    animal_rect = (
+        int(0.12 * screen_size[0]),
+        int(0.42 * screen_size[1]),
+        int(0.37 * screen_size[0]),
+        int(0.4 * screen_size[1]),
+    )
+    draw_animal(screen, *animal_rect)
+    bush_rect = (
+        int(0.75 * screen_size[0]),
+        int(0.74 * screen_size[1]),
+        screen_size[0] // 5
+    )
+    draw_bush(screen, *bush_rect)
+
+    pygame.display.update()
+    clock = pygame.time.Clock()
+    finished = True
+    while finished:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                finished = False
+    pygame.quit()
+
+
+def rand_pos(r, offset):
+    ox, oy = offset
+    angle = 2 * math.pi * rand.random()
+    return int(r * math.sin(angle) + ox), int(r * math.cos(angle) + oy)
+
+
+def draw_mountains(screen, size):
+    """
+    Draws mountain chain on screen.
+
+    :param screen: pygame Surface object
+    :param size: (width, height), tuple with screen's width and height
+    :return: None
+    """
+    closing_coeff = [
+        (1, 1),
+        (0, 1),
+    ]
+    mountains_coeff = [
+        (0, 0.325),
+        (0.18, 0.25),
+        (0.26, 0.275),
+        (0.5, 1 / 8),
+        (0.54, 0.225),
+        (0.64, 0.275),
+        (0.8, 3 / 16),
+        (0.86, 0.225),
+        (1, 0.175),
+    ]
+    mountains_vertices = [(int(x * size[0]), int(y * size[1])) for x, y in mountains_coeff]
+    closing_vertices = [(int(x * size[0]), int(y * size[1])) for x, y in closing_coeff]
+    draw.polygon(screen, COLORS['mountain grey'], mountains_vertices + closing_vertices)
+    draw.aalines(screen, COLORS['black'], False, mountains_vertices)
+
+
+def draw_land(screen, size):
+    """
+    Draws land on screen.
+
+    :param screen: pygame Surface object
+    :param size: (width, height), tuple with screen's width and height
+    :return:
+    """
+    closing_coeff = [
+        (1, 1),
+        (0, 1),
+    ]
+    surface_coeff = [
+        (0, 31 / 80),
+        (0.04, 307 / 800),
+        (0.06, 309 / 800),
+        (0.09, 63 / 160),
+        (0.46, 0.4),
+        (0.47, 33 / 80),
+        (0.48, 69 / 160),
+        (0.488, 0.475),
+        (0.496, 39 / 80),
+        (0.504, 0.525),
+        (0.52, 0.5275),
+        (0.56, 419 / 800),
+        (1, 0.525),
+    ]
+    surface_vertices = [(int(x * size[0]), int(y * size[1])) for x, y in surface_coeff]
+    closing_vertices = [(int(x * size[0]), int(y * size[1])) for x, y in closing_coeff]
+    draw.polygon(screen, COLORS['grass green'], surface_vertices + closing_vertices)
+    draw.aalines(screen, COLORS['black'], False, surface_vertices)
+
+
+def draw_animal(screen, x, y, width, height, reverse=False):
+    """
+    Draws animal on screen at x, y coordinates.
+
+    :param screen: pygame Surface object
+    :param x: x-coordinate of top left point
+    :param y: y-coordinate of top left point
+    :param width: full width of animal
+    :param height: full height of animal
+    :param reverse: if False, animal looks right
+    :return: None
+    """
+    surf = pygame.Surface((width, height))
+    surf.set_colorkey(COLORS['flower key color'])
+    surf.fill(COLORS['flower key color'])
+
+    head_rect = (
+        int(0.7 * width),
+        height // 22,
+        int(0.3 * width),
+        int(0.44 * height)
+    )
+    draw_head(surf, *head_rect)
+    legs_xy = (
+        (width//10, height//2),
+        (int(0.25 * width), int(0.58 * height)),
+        (width//2, height//2),
+        (int(0.65 * width), int(0.58 * height)),
+    )
+    for x_, y_, in legs_xy:
+        leg_width = width // 6
+        leg_height = int(0.38 * height)
+        draw_leg(surf, x_, y_, leg_width, leg_height)
+    body_rect = (
+        0,
+        int(0.41 * height),
+        6 * width // 7,
+        int(0.22 * height),
+    )
+    draw.ellipse(surf, COLORS['white'], body_rect)
+
+    if reverse:
+        surf = pygame.transform.flip(surf, True, False)
+
+    screen.blit(surf, (x, y))
+
+
+def draw_head(screen, x, y, width, height):
+    """
+    Draws animal's head and neck on `screen`.
+
+    :param screen: pygame Surface object
+    :param x: x-coordinate of top left point of image head
+    :param y: y-coordinate of top left point of image head
+    :param width: width of head
+    :param height: neck and head total height
+    :return: None
+    """
+    def draw_eye(surface, x, y, width, height):
+        """
+        Draws an eye of animal with pupil on surface.
+
+        :param surface: pygame Surface Object
+        :param x: x-coord of center of eye
+        :param y: y-coord of center of eye
+        :param width: width of eye
+        :param height: height of eye
+        :return: None
+        """
+        draw.ellipse(surface, COLORS['eye purple'], (x, y, width, height))
+        pupil_rect = (
+            x + int(0.4 * width),
+            y + height//6,
+            int(0.5 * width),
+            int(0.5 * height),
+        )
+        draw.ellipse(surface, COLORS['black'], pupil_rect)
+        glare_xy = (
+            (x + int(0.1 * width), y + int(0.2 * height)),
+            (x + int(0.3 * width), y + int(0.1 * height)),
+            (x + int(0.6 * width), y + int(0.4 * height)),
+            (x + int(0.4 * width), y + int(0.3 * height)),
+        )
+        draw.polygon(surface, COLORS['white'], glare_xy)
+
+    def draw_horn(surface, x, y, width, height):
+        """
+        Draws a horn on the head of animal.
+
+        :param surface: pygame Surface object
+        :param x: x-coordinate of bottom right point of the horn
+        :param y: y-coordinate of bottom right point of the horn
+        :param width: width of horn
+        :param height: height of horn
+        :return: None
+        """
+        poly_xy = (
+            (x, y),
+            (x - width//3, y + height // 5),
+            (x - width, y - 4 * height // 5),
+        )
+        draw.polygon(screen, COLORS['white'], poly_xy)
+
+    draw.ellipse(screen, COLORS['white'], (x, y, width, height//4))
+    draw.ellipse(screen, COLORS['white'],
+                 (
+                     x - width//10,
+                     y + height//6,
+                     int(0.7 * width),
+                     int(0.92 * height),
+                 ))
+    eye_xy = (
+        x + int(0.25 * width),
+        y + height // 30,
+        int(0.38 * width),
+        int(0.16 * height),
+    )
+    draw_eye(screen, *eye_xy)
+    horn_xy = (
+        (x + width//10, y + height//15, width // 3, int(0.2 * height)),
+        (x + width//4, y + height//40, width // 3, int(0.2 * height)),
+    )
+    for param in horn_xy:
+        draw_horn(screen, *param)
+
+
+def draw_leg(screen, x, y, width, height):
+    """
+    Draws a leg consisting of 2 vertical and 1 horizontal ellipses on pygame Surface.
+
+    :param screen: pygame Surface object
+    :param x: x-coordinate of top left point
+    :param y: y-coordinate of top left point
+    :param width: width of foot
+    :param height: full width of 3 pieces
+    :return: None
+    """
+    height0 = int(0.4 * height)
+    width0 = int(0.7 * width)
+    draw.ellipse(screen, COLORS['white'], (x, y, width0, height0))
+    draw.ellipse(screen, COLORS['white'], (x, y + int(0.95*height0), width0, height0))
+    draw.ellipse(screen, COLORS['white'],
+                 (
+                    x + 2,
+                    y + int(1.9 * height0),
+                    int(0.9 * width),
+                    int(0.15 * height),
+                 ))
+
+
+def draw_bush(screen, x, y, radius):
+    """
+    Draws a bush on `screen` and calculates parameters of flowers.
+
+    :param screen: pygame Surface object
+    :param x: x-coordinate of bush's center.
+    :param y: y-coordinate of bush's center.
+    :param radius: radius of the bush
+    :return: None
+    """
+    number_of_flowers = rand.randint(3, 6)
+
+    draw.circle(screen, COLORS['bush green'], (x, y), radius)
+    flower_width = int(0.55 * radius)
+    flower_height = int(0.27 * radius)
+    for i in range(number_of_flowers):
+        flower_x = x + rand.randint(-radius, radius) * 3 // 8
+        flower_y = y + rand.randint(-radius, radius) * 3 // 8
+        draw_flower(screen, flower_x, flower_y, flower_width, flower_height)
+
+
+def draw_flower(screen, x, y, w, h):
+    """
+    Draws a flower on `screen` object.
+
+    :param screen: pygame Surface object
+    :param x: flower's center x-coordinate
+    :param y: flower's center y-coordinate
+    :param w: width of the flower
+    :param h: height of the flower
+    :param angle: angle, the flower is rotated at
+    :return: None
+    """
+    surface = pygame.Surface((w, h))
+    surface.fill(COLORS['flower key color'])
+    surface.set_colorkey(COLORS['flower key color'])
+
+    petal_width = 4 * w // 10
+    petal_height = 4 * h // 10
+    petal_xy = (
+        (x, y - h // 4),
+        (x + 3 * w // 20, y - 3 * h // 20),
+        (x - 3 * w // 20, y - 3 * h // 20),
+        (x - w // 4, y),
+        (x + w // 4, y),
+        (x, y),
+        (x + 3 * w // 20, y + h // 5),
+        (x - 3 * w // 20, y + h // 5),
+    )
+    for i, j in petal_xy:
+        if i == x and j == y:
+            draw.ellipse(screen, COLORS['yellow'], (i, j, petal_width, petal_height))
+            continue
+        draw.ellipse(screen, COLORS['white'], (i, j, petal_width, petal_height))
+        draw.ellipse(screen, COLORS['black'], (i, j, petal_width, petal_height), 1)
+
+
+
 if __name__ == '__main__':
-    main(draw_scene, colors)
+    main()
