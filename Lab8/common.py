@@ -84,6 +84,22 @@ class Vector:
         angle = min_angle + random.random() * (max_angle - min_angle)
         return Vector(magnitude, 0).rotate(angle)
 
+    @staticmethod
+    def i():
+        """
+        Ox unit vector
+        :return: Ox unit vector
+        """
+        return Vector(1, 0)
+
+    @staticmethod
+    def j():
+        """
+        Oy unit vector
+        :return: Oy unit vector
+        """
+        return Vector(0, 1)
+
 
 class GameObject(ABC):
     """

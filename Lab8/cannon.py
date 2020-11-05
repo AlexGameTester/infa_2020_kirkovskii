@@ -14,7 +14,7 @@ class Cannon(GameObject):
     projectile_min_velocity = 50
     line_width = 20
     line_length = 150
-    y_pos = 100
+    y_pos = 400
 
     def __init__(self, game):
         height = game.resolution[1]

@@ -5,6 +5,7 @@ import pygame as pg
 from Lab8.common import GameObject, Colors, Vector, PhysicalObject
 from Lab8.cannon import Cannon
 from Lab8.enemy import Enemy
+from Lab8.tank import Tank
 
 
 class Game:
@@ -125,7 +126,7 @@ class Game:
 
         finished = False
 
-        self._cannon = Cannon(self)
+        self._tank = Tank(self)
         self.spawn_enemies()
 
         while not finished:
