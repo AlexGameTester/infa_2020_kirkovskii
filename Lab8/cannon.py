@@ -14,11 +14,9 @@ class Cannon(GameObject):
     projectile_min_velocity = 50
     line_width = 20
     line_length = 150
-    y_pos = 400
 
-    def __init__(self, game):
-        height = game.resolution[1]
-        super().__init__(Vector(Cannon.y_pos, height / 2), game)
+    def __init__(self, pos, game):
+        super().__init__(pos, game)
 
         game.subscribe_to_event(pg.MOUSEBUTTONDOWN, self._mousebuttondown_listener)
         game.subscribe_to_event(pg.MOUSEBUTTONUP, self._mousebuttonup_listener)
@@ -37,13 +35,13 @@ class Cannon(GameObject):
                                       Cannon.max_shooting_power)
 
     def draw(self, surface):
-        start_pos = tuple(self.pos)
-        end_pos = tuple(self.pos + self.direction * Cannon.line_length)
+        start_pos = self.pos.int_tuple()
+        end_pos = (self.pos + self.direction * Cannon.line_length).int_tuple()
 
         draw.line(surface, Colors.red, start_pos, end_pos, Cannon.line_width)
 
         if self.is_mouse_down:
-            end_pos = tuple(self.pos + self.direction * Cannon.line_length * max(self.shooting_power, 0.03))
+            end_pos = (self.pos + self.direction * Cannon.line_length * max(self.shooting_power, 0.03)).int_tuple()
             # line is drawn incorrectly when it's length is 0 so an indent of 0.03 added
 
             draw.line(surface, Colors.white, start_pos, end_pos, Cannon.line_width)
@@ -81,7 +79,7 @@ class Projectile(PhysicalObject):
     """
     Represents basic projectile that is shot by a cannon and can damage enemies
     """
-    gravitational_acceleration = Vector(0, 20)
+    gravitational_acceleration = Vector.j() * 20
     air_resistance_coefficient = 0.02
     max_radius = 10
 

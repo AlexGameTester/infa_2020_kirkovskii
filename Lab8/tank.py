@@ -11,9 +11,12 @@ class Tank(Cannon):
     motion_keys = {pg.K_a: (-1), pg.K_d: 1}
     motion_zone_border = (1 / 10, 9 / 10)
     speed = 200
+    y_pos = 6 / 7
+    x_pos = 1 / 2
 
     def __init__(self, game):
-        super().__init__(game)
+        width, height = game.resolution
+        super().__init__(Vector(Tank.x_pos * width, Tank.y_pos * height), game)
 
         game.subscribe_to_event(pg.KEYDOWN, self._keydown_listener)
         game.subscribe_to_event(pg.KEYUP, self._keyup_listener)

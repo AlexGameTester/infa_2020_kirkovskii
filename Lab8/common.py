@@ -67,7 +67,7 @@ class Vector:
         Converts the vector into tuple of 2 integers
         :return: tuple of 2 integers
         """
-        return int(self.x), int(self.y)
+        return int(round(self.x)), int(round(self.y))
 
     @staticmethod
     def random_vector(magnitude_range, angle_range=(0, 2 * cmath.pi)):
