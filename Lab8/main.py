@@ -35,12 +35,36 @@ class Game:
         """
         self.object_pool.append(game_object)
 
+    def destroy_object(self, game_object: GameObject):
+        """
+        Tries to destroy a game object
+        :param game_object: an object to destroy
+        :return: if the object was destroyed
+        """
+        try:
+            self.object_pool.remove(game_object)
+            return True
+        except ValueError:
+            return False
+
     def add_physical(self, physical_object: PhysicalObject):
         """
         Adds new physical object to pool. Collision of this object with other physical objects is checked every frame
-        :param physical_object:
+        :param physical_object: an object to add
         """
         self.physical_pool.append(physical_object)
+
+    def destroy_physical(self, physical_object: PhysicalObject):
+        """
+        Tries to destroy a physical object
+        :param physical_object: an object to destroy
+        :return: if the object was destroyed
+        """
+        try:
+            self.physical_pool.remove(physical_object)
+            return True
+        except ValueError:
+            return False
 
     def subscribe_to_event(self, event_type, listener):
         """

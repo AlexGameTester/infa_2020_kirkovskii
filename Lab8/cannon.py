@@ -1,6 +1,7 @@
 import pygame as pg
 import pygame.draw as draw
 from Lab8.common import GameObject, Vector, Colors, PhysicalObject
+from Lab8.enemy import Enemy
 
 
 class Cannon(GameObject):
@@ -47,8 +48,8 @@ class Cannon(GameObject):
 
             draw.line(surface, Colors.white, start_pos, end_pos, Cannon.line_width)
 
-    def on_destroyed(self):
-        pass
+    def destroy(self):
+        super().destroy()
 
     def _mousebuttondown_listener(self, event: pg.event.Event):
         """
@@ -99,12 +100,14 @@ class Projectile(PhysicalObject):
     def draw(self, surface):
         draw.circle(surface, Colors.white, self.pos.int_tuple(), Projectile.max_radius)
 
-    def on_destroyed(self):
-        pass
+    def destroy(self):
+        super().destroy()
 
     def check_collision(self, other):
         return super().check_collision(other)
 
     def on_collision(self, other):
-        print("Collision at", self.pos)
+        if isinstance(other, Enemy):
+            other.destroy()
+            self.destroy()
         return True

@@ -121,12 +121,12 @@ class GameObject(ABC):
         pass
 
     @abstractmethod
-    def on_destroyed(self):
+    def destroy(self):
         """
-        Called when object is destroyed
+        Called to destroy this object
         :return: None
         """
-        pass
+        self.game.destroy_object(self)
 
 
 class PhysicalObject(GameObject, ABC):
@@ -155,3 +155,10 @@ class PhysicalObject(GameObject, ABC):
         :return: True if other.on_collision should also be called, False otherwise
         """
         return True
+
+    def destroy(self):
+        super().destroy()
+
+        self.game.destroy_physical(self)
+
+

@@ -43,8 +43,8 @@ class Enemy(PhysicalObject):
     def draw(self, surface):
         draw.circle(surface, Colors.white, self.pos.int_tuple(), self.radius)
 
-    def on_destroyed(self):
-        pass
+    def destroy(self):
+        super().destroy()
 
     def check_collision(self, other):
         return super().check_collision(other)
