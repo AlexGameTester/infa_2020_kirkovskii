@@ -25,7 +25,7 @@ class Cannon(GameObject):
         self.shooting_power = 0
         self.direction = Vector(1, 0)
         self.is_mouse_down = False
-        self._shells = []
+        self._projectiles = []
 
     def update(self):
         x, y = pg.mouse.get_pos()
@@ -74,7 +74,7 @@ class Cannon(GameObject):
         """
         projectile_pos = self.pos + self.direction * Cannon.line_length
         projectile_velocity = self.direction * (Cannon.projectile_min_velocity + (Cannon.projectile_max_velocity - Cannon.projectile_min_velocity) * self.shooting_power)
-        self._shells.append(Projectile(projectile_pos, projectile_velocity, self.game, self))
+        self._projectiles.append(Projectile(projectile_pos, projectile_velocity, self.game, self))
 
 
 class Projectile(GameObject):

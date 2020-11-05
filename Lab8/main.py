@@ -1,12 +1,17 @@
+import random
+
 import pygame as pg
-from Lab8.common import GameObject, Colors
+from Lab8.common import GameObject, Colors, Vector
 from Lab8.cannon import Cannon
+from Lab8.enemy import Enemy
 
 
 class Game:
     """
     Class that represents game session and holds it's processes
     """
+    min_enemies = 2
+    max_enemies = 6
 
     def __init__(self, resolution=(1280, 720), fps=50, background=Colors.black):
         pg.init()
@@ -55,6 +60,10 @@ class Game:
         for game_object in self.object_pool:
             game_object.draw(self.screen)
 
+    def spawn_enemies(self):
+        number = random.randint(Game.min_enemies, Game.max_enemies + 1)
+        self.enemies = [Enemy(Vector(200, 200), self) for i in range(number)]
+
     def on_finished(self):
         """
         Called when the game is finished
@@ -73,6 +82,7 @@ class Game:
         finished = False
 
         self._cannon = Cannon(self)
+        self.spawn_enemies()
 
         while not finished:
             self.clock.tick(self.fps)

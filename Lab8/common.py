@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import cmath
+import random
 
 
 class Colors:
@@ -67,6 +68,21 @@ class Vector:
         :return: tuple of 2 integers
         """
         return int(self.x), int(self.y)
+
+    @staticmethod
+    def random_vector(magnitude_range, angle_range=(0, 2 * cmath.pi)):
+        """
+        Creates random vector
+        :param magnitude_range: tuple of (min magnitude, max magnitude) of created vector
+        :param angle_range: tuple of (min angle, max angle) in radians of created vector. Angle 0 corresponds
+        to vector forwarded in positive Ox direction
+        :return: random vector
+        """
+        min_magn, max_magn = magnitude_range
+        min_angle, max_angle = angle_range
+        magnitude = min_magn + random.random() * (max_magn - min_magn)
+        angle = min_angle + random.random() * (max_angle - min_angle)
+        return Vector(magnitude, 0).rotate(angle)
 
 
 class GameObject(ABC):
