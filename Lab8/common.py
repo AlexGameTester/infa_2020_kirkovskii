@@ -127,3 +127,31 @@ class GameObject(ABC):
         :return: None
         """
         pass
+
+
+class PhysicalObject(GameObject, ABC):
+    def __init__(self, pos, game, velocity, radius):
+        super().__init__(pos, game)
+
+        game.add_physical(self)
+
+        self.velocity = velocity
+        self.radius = radius
+
+    @abstractmethod
+    def check_collision(self, other):
+        """
+        Returns if this object collides with other
+        :param other: other physical object
+        :return: True if collides, False otherwise
+        """
+        return (self.pos - other.pos).magnitude() <= self.radius + other.radius
+
+    @abstractmethod
+    def on_collision(self, other):
+        """
+        Called when this object collides with other
+        :param other: an object that collided with this one
+        :return: if this method should be called in other object
+        """
+        return False

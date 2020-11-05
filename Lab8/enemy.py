@@ -1,9 +1,11 @@
-from Lab8.common import GameObject, Vector, Colors
-import pygame.draw as draw
 import random
 
+import pygame.draw as draw
 
-class Enemy(GameObject):
+from Lab8.common import Vector, Colors, PhysicalObject
+
+
+class Enemy(PhysicalObject):
     velocity_range = (30, 100)
     velocity_time_min = 0.5
     velocity_time_max = 2.5
@@ -25,11 +27,8 @@ class Enemy(GameObject):
         return Vector.random_vector(Enemy.velocity_range)
 
     def __init__(self, pos: Vector, game):
-        super().__init__(pos, game)
+        super().__init__(pos, game, Enemy._random_velocity(), 25)
 
-        self.radius = 25
-
-        self.velocity = Enemy._random_velocity()
         self.till_velocity_changed = Enemy._random_velocity_time()
 
     def update(self):
@@ -46,3 +45,9 @@ class Enemy(GameObject):
 
     def on_destroyed(self):
         pass
+
+    def check_collision(self, other):
+        return super().check_collision(other)
+
+    def on_collision(self, other):
+        return False
