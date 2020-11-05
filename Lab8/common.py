@@ -8,6 +8,7 @@ class Colors:
     """
     black = (0, 0, 0)
     red = (255, 0, 0)
+    white = (255, 255, 255)
 
 
 class Vector:
@@ -60,6 +61,13 @@ class Vector:
         new_c_repr = c_repr * cmath.exp(1j * angle)
         return Vector(new_c_repr.real, new_c_repr.imag)
 
+    def int_tuple(self):
+        """
+        Converts the vector into tuple of 2 integers
+        :return: tuple of 2 integers
+        """
+        return int(self.x), int(self.y)
+
 
 class GameObject(ABC):
     """
@@ -73,14 +81,16 @@ class GameObject(ABC):
         :param game: Game class object which contains this GameObject
         """
         self.pos = pos
+        self.game = game
+
         self.is_alive = True
+
         game.add_object(self)
 
     @abstractmethod
-    def update(self, fps):
+    def update(self):
         """
         Called once in every frame when updating of objects occur
-        :param fps: FPS
         :return: None
         """
         pass

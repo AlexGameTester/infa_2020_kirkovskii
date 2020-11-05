@@ -13,6 +13,7 @@ class Game:
 
         self.resolution = resolution
         self.fps = fps
+        self.dt = 1 / fps
         self.background = background
 
         self.screen = pg.display.set_mode(resolution)
@@ -43,7 +44,7 @@ class Game:
         Called once in every frame to update game objects
         """
         for game_object in self.object_pool:
-            game_object.update(self.fps)
+            game_object.update()
 
     def draw(self):
         """
@@ -64,9 +65,14 @@ class Game:
         """
         Starts game's main loop. Can execute infinitely long
         """
+        def do_loop():
+            self.update()
+            self.draw()
+            pg.display.update()
+
         finished = False
 
-        self.cannon = Cannon(self)
+        self._cannon = Cannon(self)
 
         while not finished:
             self.clock.tick(self.fps)
@@ -78,9 +84,8 @@ class Game:
                     finished = True
                     self.on_finished()
 
-                self.update()
-                self.draw()
-                pg.display.update()
+            do_loop()
+
 
 
 def main():
