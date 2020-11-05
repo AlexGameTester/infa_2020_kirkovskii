@@ -50,4 +50,4 @@ class Enemy(PhysicalObject):
         return super().check_collision(other)
 
     def on_collision(self, other):
-        return False
+        pass

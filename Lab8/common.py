@@ -152,6 +152,5 @@ class PhysicalObject(GameObject, ABC):
         """
         Called when this object collides with other
         :param other: an object that collided with this one
-        :return: if this method should be called in other object
         """
-        return False
+        pass
