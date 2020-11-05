@@ -59,8 +59,8 @@ class Game:
         """
         for object1, object2 in itertools.combinations(self.physical_pool, 2):
             if object1.check_collision(object2):
-                object1.on_collision(object2)
-                object2.on_collision(object1)
+                if object1.on_collision(object2):
+                    object2.on_collision(object1)
 
     def update(self):
         """

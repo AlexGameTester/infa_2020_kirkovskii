@@ -107,3 +107,4 @@ class Projectile(PhysicalObject):
 
     def on_collision(self, other):
         print("Collision at", self.pos)
+        return True
