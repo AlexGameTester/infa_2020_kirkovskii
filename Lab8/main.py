@@ -1,3 +1,4 @@
+import math
 import random
 import itertools
 import pygame as pg
@@ -23,6 +24,10 @@ class Game:
         self.fps = fps
         self.dt = 1 / fps
         self.background = background
+
+        width, height = resolution
+        self._x_border = (0, width)
+        self._y_border = (0.1 * height, height)
 
         self.screen = pg.display.set_mode(resolution)
         self.clock = pg.time.Clock()
@@ -82,10 +87,39 @@ class Game:
         else:
             self.event_listeners[event_type] = [listener]
 
+    def _collide_with_border(self, physical_object):
+        """
+        Checks and performs collision with border if necessary
+        :param physical_object: an object to check
+        :param energy_conserved: how much kinetic energy is conserved during collision
+        """
+        x, y = physical_object.pos
+        min_x, max_x = self._x_border
+        min_y, max_y = self._y_border
+        speed = physical_object.velocity.magnitude()
+        direction = physical_object.velocity.normalize()
+        radius = physical_object.radius
+        collided = False
+
+        if (x <= min_x + radius and direction.x < 0) or (x >= max_x - radius and direction.x > 0):
+            speed = math.sqrt(physical_object.energy_conserved * speed**2)
+            direction = Vector(-direction.x, direction.y)
+            physical_object.velocity = direction * speed
+            collided = True
+
+        if (y <= min_y + radius and direction.y < 0) or (y >= max_y - radius and direction.y > 0):
+            if not collided:
+                speed = math.sqrt(physical_object.energy_conserved * speed ** 2)
+            direction = Vector(direction.x, -direction.y)
+            physical_object.velocity = direction * speed
+
     def update_physics(self):
         """
         Called once in every frame to check collisions
         """
+        for ph_object in self.physical_pool:
+            if ph_object.collides_with_borders:
+                self._collide_with_border(ph_object)
         for object1, object2 in itertools.combinations(self.physical_pool, 2):
             if object1.check_collision(object2):
                 if object1.on_collision(object2):

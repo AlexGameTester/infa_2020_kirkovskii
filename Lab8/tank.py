@@ -1,7 +1,8 @@
 from Lab8.cannon import Cannon
 import pygame as pg
+import pygame.draw as draw
 
-from Lab8.common import Vector
+from Lab8.common import Vector, Colors
 
 
 class Tank(Cannon):
@@ -13,6 +14,8 @@ class Tank(Cannon):
     speed = 200
     y_pos = 6 / 7
     x_pos = 1 / 2
+    x_size = 1 / 12
+    y_size = 1 / 15
 
     def __init__(self, game):
         width, height = game.resolution
@@ -22,6 +25,14 @@ class Tank(Cannon):
         game.subscribe_to_event(pg.KEYUP, self._keyup_listener)
 
         self.motion_direction = 0
+
+    def draw(self, surface):
+        width, height = self.game.resolution
+        size_vector = Vector(Tank.x_size * width, Tank.y_size * width)
+        rect = (self.pos - size_vector * 0.5).int_tuple(), size_vector.int_tuple()
+        
+        draw.rect(surface, Colors.white, rect)
+        super().draw(surface)
 
     def update(self):
         super().update()

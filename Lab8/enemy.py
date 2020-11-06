@@ -27,7 +27,7 @@ class Enemy(PhysicalObject):
         return Vector.random_vector(Enemy.velocity_range)
 
     def __init__(self, pos: Vector, game):
-        super().__init__(pos, game, Enemy._random_velocity(), 25)
+        super().__init__(pos, game, Enemy._random_velocity(), 25, collides_with_borders=True)
 
         self.till_velocity_changed = Enemy._random_velocity_time()
 

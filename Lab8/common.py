@@ -146,13 +146,15 @@ class GameObject(ABC):
 
 
 class PhysicalObject(GameObject, ABC):
-    def __init__(self, pos, game, velocity, radius):
+    def __init__(self, pos, game, velocity, radius, collides_with_borders=False, energy_conserved=1.0):
         super().__init__(pos, game)
 
         game.add_physical(self)
 
         self.velocity = velocity
         self.radius = radius
+        self.collides_with_borders = collides_with_borders
+        self.energy_conserved = energy_conserved
 
     @abstractmethod
     def check_collision(self, other):

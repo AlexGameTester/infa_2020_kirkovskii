@@ -84,9 +84,10 @@ class Projectile(PhysicalObject):
     gravitational_acceleration = Vector.j() * 20
     air_resistance_coefficient = 0.02
     max_radius = 10
+    energy_conserved_in_collision = 0.72
 
     def __init__(self, pos, velocity, game, cannon):
-        super().__init__(pos, game, velocity, Projectile.max_radius)
+        super().__init__(pos, game, velocity, Projectile.max_radius, collides_with_borders=True, energy_conserved=Projectile.energy_conserved_in_collision)
 
         self.cannon = cannon
 
