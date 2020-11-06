@@ -5,6 +5,7 @@ import pygame as pg
 from Lab8.common import GameObject, Colors, Vector, PhysicalObject
 from Lab8.cannon import Cannon
 from Lab8.enemy import Enemy
+from Lab8.scoreboard import Scoreboard
 from Lab8.tank import Tank
 
 
@@ -25,9 +26,12 @@ class Game:
 
         self.screen = pg.display.set_mode(resolution)
         self.clock = pg.time.Clock()
+
         self.object_pool = []
         self.physical_pool = []
         self.event_listeners = {}
+
+        self.scoreboard = Scoreboard(self)
 
     def add_object(self, game_object: GameObject):
         """

@@ -38,12 +38,8 @@ class Tank(Cannon):
         KEYDOWN event listener
         :param event: an event object
         """
-        print(f'Key {event.key} is down')
-        print('Supported keys are', Tank.motion_keys.keys())
         if self.motion_direction == 0 and event.key in Tank.motion_keys:
             self.motion_direction = Tank.motion_keys[event.key]
-
-        print('Now motion direction is', self.motion_direction)
 
     def _keyup_listener(self, event):
         """

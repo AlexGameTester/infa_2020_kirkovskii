@@ -74,6 +74,8 @@ class Cannon(GameObject):
         projectile_velocity = self.direction * (Cannon.projectile_min_velocity + (Cannon.projectile_max_velocity - Cannon.projectile_min_velocity) * self.shooting_power)
         self._projectiles.append(Projectile(projectile_pos, projectile_velocity, self.game, self))
 
+        self.game.scoreboard.projectile_shot()
+
 
 class Projectile(PhysicalObject):
     """
@@ -108,4 +110,6 @@ class Projectile(PhysicalObject):
         if isinstance(other, Enemy):
             other.destroy()
             self.destroy()
+            self.game.scoreboard.enemy_destroyed()
+
         return True
