@@ -2,7 +2,7 @@ import random
 
 import pygame.draw as draw
 
-from Lab8.common import Vector, Colors, PhysicalObject
+from common import Vector, Colors, PhysicalObject
 
 
 class Enemy(PhysicalObject):

@@ -1,8 +1,8 @@
-from Lab8.cannon import Cannon
+from cannon import Cannon
 import pygame as pg
 import pygame.draw as draw
 
-from Lab8.common import Vector, Colors
+from common import Vector, Colors
 
 
 class Tank(Cannon):
@@ -30,7 +30,7 @@ class Tank(Cannon):
         width, height = self.game.resolution
         size_vector = Vector(Tank.x_size * width, Tank.y_size * width)
         rect = (self.pos - size_vector * 0.5).int_tuple(), size_vector.int_tuple()
-        
+
         draw.rect(surface, Colors.white, rect)
         super().draw(surface)
 

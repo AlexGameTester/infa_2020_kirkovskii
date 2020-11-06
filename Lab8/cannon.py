@@ -1,7 +1,7 @@
 import pygame as pg
 import pygame.draw as draw
-from Lab8.common import GameObject, Vector, Colors, PhysicalObject
-from Lab8.enemy import Enemy
+from common import GameObject, Vector, Colors, PhysicalObject
+from enemy import Enemy
 
 
 class Cannon(GameObject):

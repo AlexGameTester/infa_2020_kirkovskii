@@ -1,4 +1,4 @@
-from Lab8.common import GameObject, Vector
+from common import GameObject, Vector
 import pygame.draw as draw
 import pygame as pg
 

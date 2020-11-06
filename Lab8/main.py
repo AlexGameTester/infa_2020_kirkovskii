@@ -3,11 +3,11 @@ import random
 import itertools
 import pygame as pg
 
-from Lab8.common import GameObject, Colors, Vector, PhysicalObject
-from Lab8.cannon import Cannon
-from Lab8.enemy import Enemy
-from Lab8.scoreboard import Scoreboard
-from Lab8.tank import Tank
+from common import GameObject, Colors, Vector, PhysicalObject
+from cannon import Cannon
+from enemy import Enemy
+from scoreboard import Scoreboard
+from tank import Tank
 
 
 class Game:
